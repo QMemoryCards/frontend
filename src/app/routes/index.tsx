@@ -2,6 +2,7 @@ import React from 'react';
 import { createBrowserRouter, RouterProvider } from 'react-router-dom';
 import { WelcomePage } from '@pages/welcome';
 import { LoginPage, RegisterPage } from '@pages/auth';
+import { DecksPage } from '@pages/decks';
 import { ROUTES } from '@shared/config';
 
 const router = createBrowserRouter([
@@ -16,6 +17,10 @@ const router = createBrowserRouter([
   {
     path: ROUTES.REGISTER,
     element: <RegisterPage />,
+  },
+  {
+    path: ROUTES.DECKS,
+    element: <DecksPage />,
   },
   // Временная заглушка для других маршрутов
   {
