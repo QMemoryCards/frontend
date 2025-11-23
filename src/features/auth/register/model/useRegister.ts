@@ -62,6 +62,11 @@ export const useRegister = (): UseRegisterReturn => {
         (err as { response?: { data?: { code?: string } } }).response?.data?.code ||
         (err as Error).message ||
         'Ошибка регистрации';
+      if (errorMessage == "email_conflict") {
+        errorMessage = "Данный email уже занят"
+      } else if (errorMessage == "login_conflict") {
+        errorMessage = "Данный login уже занят"
+      }
       setError(errorMessage);
       throw err;
     } finally {
