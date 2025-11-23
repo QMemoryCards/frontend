@@ -37,21 +37,6 @@ export const useRegister = (): UseRegisterReturn => {
         throw new Error(passwordValidation.error);
       }
 
-      // const [emailUnique, loginUnique] = await Promise.all([
-      //   checkEmailUnique(data.email),
-      //   checkLoginUnique(data.login),
-      // ]);
-
-      // if (!emailUnique) {
-      //   alert()
-      //   throw new Error('Пользователь с таким email уже существует');
-      // }
-      //
-      // if (!loginUnique) {
-      //   throw new Error('Пользователь с таким логином уже существует');
-      // }
-
-      // alert("sending post")
       const response = await registerUser(data);
 
       setToken(response.token);
