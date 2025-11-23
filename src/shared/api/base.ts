@@ -21,17 +21,18 @@ export interface ApiError {
   message: string;
   statusCode: number;
   errors?: Record<string, string[]>;
+  code?: string;
 }
 
 // Тип для структуры ошибки ответа сервера
 interface ApiErrorResponse {
   message?: string;
+  code?: string;
   errors?: Record<string, string[]>;
 }
 
 // Утилита для обработки ошибок
 export const handleApiError = (error: AxiosError): ApiError => {
-  // alert("got into error handler")
   if (error.response) {
     const data = error.response.data as ApiErrorResponse;
     // Сервер вернул ответ с ошибкой
@@ -39,6 +40,7 @@ export const handleApiError = (error: AxiosError): ApiError => {
       message: data?.message || 'Произошла ошибка',
       statusCode: error.response.status,
       errors: data?.errors,
+      code: data?.code,
     };
   } else if (error.request) {
     // Запрос был отправлен, но ответа не получено
