@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { registerUser, checkEmailUnique, checkLoginUnique } from '@entities/user';
+import { registerUser } from '@entities/user';
 import type { RegisterRequest } from '@entities/user';
 import { setToken } from '@shared/api';
 import { ROUTES } from '@shared/config';
@@ -36,19 +36,22 @@ export const useRegister = (): UseRegisterReturn => {
       if (!passwordValidation.isValid) {
         throw new Error(passwordValidation.error);
       }
-      const [emailUnique, loginUnique] = await Promise.all([
-        checkEmailUnique(data.email),
-        checkLoginUnique(data.login),
-      ]);
 
-      if (!emailUnique) {
-        throw new Error('Пользователь с таким email уже существует');
-      }
+      // const [emailUnique, loginUnique] = await Promise.all([
+      //   checkEmailUnique(data.email),
+      //   checkLoginUnique(data.login),
+      // ]);
 
-      if (!loginUnique) {
-        throw new Error('Пользователь с таким логином уже существует');
-      }
+      // if (!emailUnique) {
+      //   alert()
+      //   throw new Error('Пользователь с таким email уже существует');
+      // }
+      //
+      // if (!loginUnique) {
+      //   throw new Error('Пользователь с таким логином уже существует');
+      // }
 
+      // alert("sending post")
       const response = await registerUser(data);
 
       setToken(response.token);

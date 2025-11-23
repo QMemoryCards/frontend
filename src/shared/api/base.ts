@@ -1,7 +1,7 @@
 import axios, { AxiosInstance, AxiosError } from 'axios';
 import { setupRequestInterceptor, setupResponseInterceptor } from './interceptors';
 
-const API_BASE_URL = 'http://localhost:8080/api';
+const API_BASE_URL = 'http://localhost:8080/api/v1';
 
 // Создание экземпляра Axios
 export const apiClient: AxiosInstance = axios.create({
@@ -31,6 +31,7 @@ interface ApiErrorResponse {
 
 // Утилита для обработки ошибок
 export const handleApiError = (error: AxiosError): ApiError => {
+  // alert("got into error handler")
   if (error.response) {
     const data = error.response.data as ApiErrorResponse;
     // Сервер вернул ответ с ошибкой

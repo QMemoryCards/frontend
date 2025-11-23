@@ -11,6 +11,7 @@ import type {
  * POST /api/auth/register
  */
 export const registerUser = async (data: RegisterRequest): Promise<RegisterResponse> => {
+  alert("sending registerUser")
   const response = await apiClient.post<RegisterResponse>('/auth/register', data);
   return response.data;
 };
