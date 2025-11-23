@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { registerUser, checkEmailUnique, checkLoginUnique } from '@entities/user';
+import { registerUser } from '@entities/user';
 import type { RegisterRequest } from '@entities/user';
 import { setToken } from '@shared/api';
 import { ROUTES } from '@shared/config';
@@ -36,18 +36,6 @@ export const useRegister = (): UseRegisterReturn => {
       if (!passwordValidation.isValid) {
         throw new Error(passwordValidation.error);
       }
-      const [emailUnique, loginUnique] = await Promise.all([
-        checkEmailUnique(data.email),
-        checkLoginUnique(data.login),
-      ]);
-
-      if (!emailUnique) {
-        throw new Error('Пользователь с таким email уже существует');
-      }
-
-      if (!loginUnique) {
-        throw new Error('Пользователь с таким логином уже существует');
-      }
 
       const response = await registerUser(data);
 
@@ -55,10 +43,15 @@ export const useRegister = (): UseRegisterReturn => {
 
       navigate(ROUTES.LOGIN);
     } catch (err: unknown) {
-      const errorMessage =
-        (err as { response?: { data?: { message?: string } } }).response?.data?.message ||
+      let errorMessage =
+        (err as { response?: { data?: { code?: string } } }).response?.data?.code ||
         (err as Error).message ||
         'Ошибка регистрации';
+      if (errorMessage == "email_conflict") {
+        errorMessage = "Данный email уже занят"
+      } else if (errorMessage == "login_conflict") {
+        errorMessage = "Данный login уже занят"
+      }
       setError(errorMessage);
       throw err;
     } finally {

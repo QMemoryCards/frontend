@@ -1,7 +1,7 @@
 import axios, { AxiosInstance, AxiosError } from 'axios';
 import { setupRequestInterceptor, setupResponseInterceptor } from './interceptors';
 
-const API_BASE_URL = 'http://localhost:8080/api';
+const API_BASE_URL = 'http://localhost:8080/api/v1';
 
 // Создание экземпляра Axios
 export const apiClient: AxiosInstance = axios.create({
@@ -21,11 +21,13 @@ export interface ApiError {
   message: string;
   statusCode: number;
   errors?: Record<string, string[]>;
+  code?: string;
 }
 
 // Тип для структуры ошибки ответа сервера
 interface ApiErrorResponse {
   message?: string;
+  code?: string;
   errors?: Record<string, string[]>;
 }
 
@@ -38,6 +40,7 @@ export const handleApiError = (error: AxiosError): ApiError => {
       message: data?.message || 'Произошла ошибка',
       statusCode: error.response.status,
       errors: data?.errors,
+      code: data?.code,
     };
   } else if (error.request) {
     // Запрос был отправлен, но ответа не получено
