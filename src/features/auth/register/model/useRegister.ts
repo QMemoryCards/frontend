@@ -58,8 +58,8 @@ export const useRegister = (): UseRegisterReturn => {
 
       navigate(ROUTES.LOGIN);
     } catch (err: unknown) {
-      const errorMessage =
-        (err as { response?: { data?: { message?: string } } }).response?.data?.message ||
+      let errorMessage =
+        (err as { response?: { data?: { code?: string } } }).response?.data?.code ||
         (err as Error).message ||
         'Ошибка регистрации';
       setError(errorMessage);
