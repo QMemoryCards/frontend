@@ -43,5 +43,8 @@ jobs:
           --cache-to=type=gha,mode=max \
           -t $REGISTRY/$IMAGE_NAME:$IMAGE_TAG .
 
+      - name: Log in
+        run: echo "${{ secrets.GITHUB_TOKEN }}" | docker login ghcr.io -u ${{ github.actor }} --password-stdin
+
       - name: Push Docker image
         run: docker push $REGISTRY/$IMAGE_NAME:$IMAGE_TAG
