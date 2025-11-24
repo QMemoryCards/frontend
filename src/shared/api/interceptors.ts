@@ -41,9 +41,16 @@ export const setupResponseInterceptor = (instance: AxiosInstance): void => {
     (error: AxiosError) => {
       // Если токен истек или невалиден
       if (error.response?.status === 401) {
-        removeToken();
-        // Редирект на страницу входа
-        window.location.href = '/login';
+        // НЕ делаем редирект для эндпоинтов логина и регистрации
+        // (там 401 означает неверные учетные данные)
+        const isAuthEndpoint = error.config?.url?.includes('/auth/login') || 
+                               error.config?.url?.includes('/auth/register');
+        
+        if (!isAuthEndpoint) {
+          removeToken();
+          // Редирект на страницу входа только если это не auth эндпоинт
+          window.location.href = '/login';
+        }
       }
 
       // Если нет доступа (не авторизован) - редирект на логин

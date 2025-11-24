@@ -1,8 +1,9 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { AxiosError } from 'axios';
 import { loginUser } from '@entities/user';
 import type { LoginRequest } from '@entities/user';
-import { setToken } from '@shared/api';
+import { setToken, handleApiError } from '@shared/api';
 import { ROUTES } from '@shared/config';
 import { validateLogin, validatePassword } from '@shared/lib/validation';
 
@@ -28,12 +29,16 @@ export const useLogin = (): UseLoginReturn => {
     try {
       const loginValidation = validateLogin(data.login);
       if (!loginValidation.isValid) {
-        throw new Error(loginValidation.error);
+        const validationError = loginValidation.error || 'Неверный формат логина';
+        setError(validationError);
+        return;
       }
 
       const passwordValidation = validatePassword(data.password);
       if (!passwordValidation.isValid) {
-        throw new Error(passwordValidation.error);
+        const validationError = passwordValidation.error || 'Неверный формат пароля';
+        setError(validationError);
+        return;
       }
 
       const response = await loginUser(data);
@@ -42,9 +47,24 @@ export const useLogin = (): UseLoginReturn => {
 
       navigate(ROUTES.DECKS);
     } catch (err: unknown) {
-      const errorMessage = err instanceof Error ? err.message : 'Ошибка входа';
+      const apiError = handleApiError(err as AxiosError);
+
+      // Формируем понятное сообщение об ошибке
+      let errorMessage = 'Ошибка входа';
+
+      if (apiError.statusCode === 401) {
+        errorMessage = 'Неверный логин или пароль';
+      } else if (apiError.statusCode === 400) {
+        errorMessage = apiError.message || 'Неверные данные для входа';
+      } else if (apiError.statusCode === 0) {
+        errorMessage = 'Сервер недоступен. Проверьте подключение к интернету';
+      } else if (apiError.message) {
+        errorMessage = apiError.message;
+      }
+
       setError(errorMessage);
-      throw err;
+
+      // НЕ бросаем ошибку дальше, чтобы избежать необработанного исключения
     } finally {
       setIsLoading(false);
     }
