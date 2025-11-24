@@ -13,13 +13,16 @@ const CardContainer = styled.div`
   border-radius: 16px;
   box-shadow: 0 4px 24px rgba(0, 0, 0, 0.12);
   padding: 48px;
-  min-height: 400px;
+  width: 100%;
+  max-width: 700px;
+  height: 450px;
   display: flex;
   flex-direction: column;
   justify-content: center;
   align-items: center;
   cursor: pointer;
   transition: transform 0.2s;
+  position: relative;
 
   &:hover {
     transform: translateY(-4px);
@@ -27,7 +30,7 @@ const CardContainer = styled.div`
 
   @media (max-width: 768px) {
     padding: 32px 24px;
-    min-height: 320px;
+    height: 380px;
   }
 `;
 
@@ -38,6 +41,15 @@ const CardSide = styled.div<{ $show: boolean }>`
   justify-content: center;
   text-align: center;
   width: 100%;
+  height: 100%;
+  position: absolute;
+  top: 0;
+  left: 0;
+  padding: 48px;
+
+  @media (max-width: 768px) {
+    padding: 32px 24px;
+  }
 `;
 
 const Label = styled.div`
@@ -68,7 +80,12 @@ const Hint = styled.div`
   color: #8c8c8c;
 `;
 
-export const StudyCard: React.FC<StudyCardProps> = ({ question, answer, showAnswer, onToggleAnswer }) => {
+export const StudyCard: React.FC<StudyCardProps> = ({
+  question,
+  answer,
+  showAnswer,
+  onToggleAnswer,
+}) => {
   return (
     <CardContainer onClick={onToggleAnswer}>
       <CardSide $show={!showAnswer}>

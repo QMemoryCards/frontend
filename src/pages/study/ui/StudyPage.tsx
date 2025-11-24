@@ -263,7 +263,7 @@ const ResultButton = styled.button<{ $primary?: boolean }>`
 `;
 
 export const StudyPage: React.FC = () => {
-  const { deckId } = useParams<{ deckId: string }>();
+  const { id: deckId } = useParams<{ id: string }>();
   const navigate = useNavigate();
   const { modal } = App.useApp();
 
@@ -285,6 +285,7 @@ export const StudyPage: React.FC = () => {
     if (deckId) {
       fetchStudyCards();
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [deckId]);
 
   const handleBack = () => {

@@ -17,7 +17,8 @@ export const useStudy = (deckId: string) => {
     setLoading(true);
     try {
       const response = await studyApi.getStudyCards(deckId);
-      setCards(response.data.content);
+      const cardsData = Array.isArray(response.data) ? response.data : response.data.content || [];
+      setCards(cardsData);
       setCurrentCardIndex(0);
       setShowAnswer(false);
       setRememberedCount(0);
@@ -47,9 +48,12 @@ export const useStudy = (deckId: string) => {
         setForgottenCount(prev => prev + 1);
       }
 
+      setShowAnswer(false);
+
       if (currentCardIndex < cards.length - 1) {
         setCurrentCardIndex(prev => prev + 1);
-        setShowAnswer(false);
+      } else {
+        setCurrentCardIndex(prev => prev + 1);
       }
     } catch (error) {
       const apiError = handleApiError(error as AxiosError);
@@ -62,12 +66,9 @@ export const useStudy = (deckId: string) => {
   };
 
   const isLastCard = currentCardIndex === cards.length - 1;
-  const isCompleted =
-    currentCardIndex === cards.length - 1 && rememberedCount + forgottenCount === cards.length;
+  const isCompleted = currentCardIndex >= cards.length && cards.length > 0;
   const progress =
-    cards.length > 0
-      ? Math.round(((currentCardIndex + (showAnswer ? 1 : 0)) / cards.length) * 100)
-      : 0;
+    cards.length > 0 ? Math.round(((rememberedCount + forgottenCount) / cards.length) * 100) : 0;
 
   return {
     cards,
