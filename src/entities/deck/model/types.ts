@@ -6,7 +6,7 @@ export interface Deck {
 
 export interface CreateDeckRequest {
   name: string;
-  description: string;
+  description?: string;
 }
 
 export interface CreateDeckResponce {
@@ -40,17 +40,17 @@ export interface GetDecksResponse {
 export interface DeckDetails {
   id: string;
   name: string;
-  description: string;
+  description: string | null;
   cardCount: number;
   learnedPercent: number;
-  lastStudied: string;
+  lastStudied: string | null;
   createdAt: string;
   updatedAt: string;
 }
 
 export interface UpdateDeckRequest {
-  name: string;
-  description: string;
+  name?: string;
+  description?: string;
 }
 
 export interface UpdateDeckResponse {
