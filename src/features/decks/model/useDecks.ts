@@ -1,5 +1,6 @@
 import { useState, useEffect, useCallback } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { message } from 'antd';
 import { createDeck, getDeck, updateDeck, deleteDeck, getDecks } from '@entities/deck';
 import type { CreateDeckRequest, UpdateDeckRequest, DeckDetails } from '@entities/deck';
 import { ROUTES } from '@shared/config';
@@ -34,9 +35,9 @@ export const useDecks = (initialPage: number = 0, pageSize: number = 20): UseDec
           id: deck.id,
           name: deck.name,
           description: deck.description,
-          cardCount: deck.cardcount,
+          cardCount: deck.cardCount,
           learnedPercent: deck.learnedPercent,
-          lastStudied: deck.laststudied,
+          lastStudied: deck.lastStudied,
           createdAt: deck.createdAt,
           updatedAt: deck.updatedAt,
         }));
@@ -181,10 +182,11 @@ export const useDeleteDeck = (): UseDeleteDeckReturn => {
 
     try {
       await deleteDeck(deckId);
+      message.success('Колода удалена');
     } catch (err: unknown) {
       const errorMessage = err instanceof Error ? err.message : 'Ошибка удаления колоды';
       setError(errorMessage);
-      throw err;
+      message.error(errorMessage);
     } finally {
       setIsLoading(false);
     }

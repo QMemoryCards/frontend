@@ -1,10 +1,10 @@
-import React, { useState, useMemo } from 'react';
+import React, { useState, useMemo, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import styled from 'styled-components';
-import { Modal } from 'antd';
+import { App } from 'antd';
 import { PlusOutlined, SearchOutlined } from '@ant-design/icons';
 import { DeckCard } from '@entities/deck';
-import type { DeckDetails } from '@entities/deck';
+import type { DeckDetails, CreateDeckRequest } from '@entities/deck';
 import { useDecks, useCreateDeck, useDeleteDeck } from '@features/decks';
 import { CreateDeckModal } from '@features/decks';
 import { Spinner } from '@shared/ui';
@@ -223,6 +223,7 @@ type FilterStatus = 'all' | 'learned' | 'learning' | 'new';
 
 export const DecksPage: React.FC = () => {
   const navigate = useNavigate();
+  const { modal } = App.useApp();
   const [isCreateModalOpen, setIsCreateModalOpen] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');
   const [filterStatus, setFilterStatus] = useState<FilterStatus>('all');
@@ -255,13 +256,17 @@ export const DecksPage: React.FC = () => {
     return filtered;
   }, [decks, searchQuery, filterStatus]);
 
-  const handleCreateDeck = async (data: any) => {
+  useEffect(() => {
+    refetch();
+  }, [refetch]);
+
+  const handleCreateDeck = async (data: CreateDeckRequest) => {
     await createDeckFn(data);
     await refetch();
   };
 
   const handleDeleteDeck = (deckId: string) => {
-    Modal.confirm({
+    modal.confirm({
       title: 'Удалить колоду?',
       content: 'Это действие нельзя отменить. Все карточки в колоде также будут удалены.',
       okText: 'Удалить',

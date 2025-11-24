@@ -25,7 +25,7 @@ export const useCards = (deckId: string) => {
     }
   };
 
-  return { cards, loading, totalElements, fetchCards, setCards };
+  return { cards, loading, totalElements, fetchCards, setCards, setTotalElements };
 };
 
 export const useCreateCard = (deckId: string) => {

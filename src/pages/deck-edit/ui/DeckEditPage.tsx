@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import styled from 'styled-components';
-import { Modal, message } from 'antd';
+import { App } from 'antd';
 import { PlusOutlined, ArrowLeftOutlined, SaveOutlined } from '@ant-design/icons';
 import { Input } from '@shared/ui';
 import { CardItem } from '@entities/card';
@@ -197,10 +197,11 @@ const LoadingContainer = styled.div`
 export const DeckEditPage: React.FC = () => {
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
+  const { modal, message } = App.useApp();
 
   const { deck, isLoading: deckLoading, fetchDeck } = useGetDeck();
   const { updateDeck, isLoading: updateLoading } = useUpdateDeck();
-  const { cards, loading: cardsLoading, totalElements, fetchCards, setCards } = useCards(id || '');
+  const { cards, loading: cardsLoading, fetchCards, setCards } = useCards(id || '');
   const { createCard, loading: createLoading } = useCreateCard(id || '');
   const { updateCard, loading: updateCardLoading } = useUpdateCard(id || '');
   const { deleteCard } = useDeleteCard(id || '');
@@ -259,7 +260,12 @@ export const DeckEditPage: React.FC = () => {
   const handleCreateCard = async (data: CreateCardRequest) => {
     const newCard = await createCard(data);
     if (newCard) {
-      setCards([...cards, newCard]);
+      const updatedCards = [...cards, newCard];
+      setCards(updatedCards);
+      if (id) {
+        await fetchDeck(id);
+        await fetchCards();
+      }
     }
   };
 
@@ -277,7 +283,7 @@ export const DeckEditPage: React.FC = () => {
   };
 
   const handleDeleteCard = (cardId: string) => {
-    Modal.confirm({
+    modal.confirm({
       title: 'Удалить карточку?',
       content: 'Это действие нельзя отменить',
       okText: 'Удалить',
@@ -286,14 +292,19 @@ export const DeckEditPage: React.FC = () => {
       onOk: async () => {
         const success = await deleteCard(cardId);
         if (success) {
-          setCards(cards.filter(c => c.id !== cardId));
+          const updatedCards = cards.filter(c => c.id !== cardId);
+          setCards(updatedCards);
+          if (id) {
+            await fetchDeck(id);
+            await fetchCards();
+          }
         }
       },
     });
   };
 
   const handleOpenCreateModal = () => {
-    if (totalElements >= VALIDATION.CARD.MAX_CARDS) {
+    if (cards.length >= VALIDATION.CARD.MAX_CARDS) {
       message.warning(`Достигнут лимит карточек (${VALIDATION.CARD.MAX_CARDS})`);
       return;
     }
@@ -366,11 +377,11 @@ export const DeckEditPage: React.FC = () => {
         <CardsSection>
           <SectionHeader>
             <SectionTitle>
-              Карточки ({totalElements}/{VALIDATION.CARD.MAX_CARDS})
+              Карточки ({cards.length}/{VALIDATION.CARD.MAX_CARDS})
             </SectionTitle>
             <AddCardButton
               onClick={handleOpenCreateModal}
-              disabled={totalElements >= VALIDATION.CARD.MAX_CARDS}
+              disabled={cards.length >= VALIDATION.CARD.MAX_CARDS}
             >
               <PlusOutlined />
               Добавить карточку

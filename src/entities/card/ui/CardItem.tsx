@@ -74,11 +74,13 @@ const IconButton = styled.button`
 `;
 
 export const CardItem: React.FC<CardItemProps> = ({ card, onEdit, onDelete }) => {
-  const handleEdit = () => {
+  const handleEdit = (e: React.MouseEvent) => {
+    e.stopPropagation();
     onEdit(card);
   };
 
-  const handleDelete = () => {
+  const handleDelete = (e: React.MouseEvent) => {
+    e.stopPropagation();
     onDelete(card.id);
   };
 
