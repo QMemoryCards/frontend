@@ -1,8 +1,78 @@
-import { useState } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { createDeck, getDeck, updateDeck, deleteDeck } from '@entities/deck';
+import { createDeck, getDeck, updateDeck, deleteDeck, getDecks } from '@entities/deck';
 import type { CreateDeckRequest, UpdateDeckRequest, DeckDetails } from '@entities/deck';
 import { ROUTES } from '@shared/config';
+
+interface UseDecksReturn {
+  decks: DeckDetails[];
+  isLoading: boolean;
+  error: string | null;
+  totalPages: number;
+  currentPage: number;
+  totalElements: number;
+  fetchDecks: (page?: number) => Promise<void>;
+  refetch: () => Promise<void>;
+}
+
+export const useDecks = (initialPage: number = 0, pageSize: number = 20): UseDecksReturn => {
+  const [decks, setDecks] = useState<DeckDetails[]>([]);
+  const [isLoading, setIsLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+  const [currentPage, setCurrentPage] = useState(initialPage);
+  const [totalPages, setTotalPages] = useState(0);
+  const [totalElements, setTotalElements] = useState(0);
+
+  const fetchDecks = useCallback(
+    async (page: number = currentPage) => {
+      setIsLoading(true);
+      setError(null);
+
+      try {
+        const response = await getDecks(page, pageSize);
+        const mappedDecks = response.content.map(deck => ({
+          id: deck.id,
+          name: deck.name,
+          description: deck.description,
+          cardCount: deck.cardcount,
+          learnedPercent: deck.learnedPercent,
+          lastStudied: deck.laststudied,
+          createdAt: deck.createdAt,
+          updatedAt: deck.updatedAt,
+        }));
+
+        setDecks(mappedDecks);
+        setCurrentPage(response.page);
+        setTotalPages(response.totalPages);
+        setTotalElements(response.totalElements);
+      } catch (err: unknown) {
+        const errorMessage = err instanceof Error ? err.message : 'Ошибка загрузки колод';
+        setError(errorMessage);
+      } finally {
+        setIsLoading(false);
+      }
+    },
+    [currentPage, pageSize]
+  );
+
+  const refetch = useCallback(() => fetchDecks(currentPage), [fetchDecks, currentPage]);
+
+  useEffect(() => {
+    fetchDecks(initialPage);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
+  return {
+    decks,
+    isLoading,
+    error,
+    totalPages,
+    currentPage,
+    totalElements,
+    fetchDecks,
+    refetch,
+  };
+};
 
 interface UseCreateDeckReturn {
   createDeck: (data: CreateDeckRequest) => Promise<void>;
