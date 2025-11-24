@@ -39,3 +39,13 @@ export interface ApiErrorResponse {
     password?: string[];
   };
 }
+
+export interface UpdateUserRequest {
+  email?: string;
+  login?: string;
+}
+
+export interface ChangePasswordRequest {
+  currentPassword: string;
+  newPassword: string;
+}

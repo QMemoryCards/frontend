@@ -5,4 +5,6 @@ export type {
   LoginRequest,
   LoginResponse,
   ApiErrorResponse,
+  UpdateUserRequest,
+  ChangePasswordRequest,
 } from './types';
