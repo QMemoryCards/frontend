@@ -5,7 +5,7 @@ import { Modal, message } from 'antd';
 import { PlusOutlined, ArrowLeftOutlined, SaveOutlined } from '@ant-design/icons';
 import { Input } from '@shared/ui';
 import { CardItem } from '@entities/card';
-import type { Card } from '@entities/card';
+import type { Card, CreateCardRequest, UpdateCardRequest } from '@entities/card';
 import { useGetDeck, useUpdateDeck } from '@features/decks';
 import { useCards, useCreateCard, useUpdateCard, useDeleteCard } from '@features/cards';
 import { CreateCardModal, EditCardModal } from '@features/cards';
@@ -198,12 +198,12 @@ export const DeckEditPage: React.FC = () => {
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
 
-  const { deck, loading: deckLoading, fetchDeck } = useGetDeck();
-  const { updateDeck, loading: updateLoading } = useUpdateDeck();
+  const { deck, isLoading: deckLoading, fetchDeck } = useGetDeck();
+  const { updateDeck, isLoading: updateLoading } = useUpdateDeck();
   const { cards, loading: cardsLoading, totalElements, fetchCards, setCards } = useCards(id || '');
   const { createCard, loading: createLoading } = useCreateCard(id || '');
   const { updateCard, loading: updateCardLoading } = useUpdateCard(id || '');
-  const { deleteCard, loading: deleteLoading } = useDeleteCard(id || '');
+  const { deleteCard } = useDeleteCard(id || '');
 
   const [name, setName] = useState('');
   const [description, setDescription] = useState('');
@@ -218,6 +218,7 @@ export const DeckEditPage: React.FC = () => {
       fetchDeck(id);
       fetchCards();
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [id]);
 
   useEffect(() => {
@@ -247,17 +248,15 @@ export const DeckEditPage: React.FC = () => {
       return;
     }
 
-    const updated = await updateDeck(id, {
+    await updateDeck(id, {
       name: name.trim(),
       description: description.trim() || undefined,
     });
 
-    if (updated) {
-      fetchDeck(id);
-    }
+    fetchDeck(id);
   };
 
-  const handleCreateCard = async (data: any) => {
+  const handleCreateCard = async (data: CreateCardRequest) => {
     const newCard = await createCard(data);
     if (newCard) {
       setCards([...cards, newCard]);
@@ -270,7 +269,7 @@ export const DeckEditPage: React.FC = () => {
     setIsEditModalOpen(true);
   };
 
-  const handleUpdateCard = async (cardId: string, data: any) => {
+  const handleUpdateCard = async (cardId: string, data: UpdateCardRequest) => {
     const updated = await updateCard(cardId, data);
     if (updated) {
       setCards(cards.map(c => (c.id === cardId ? updated : c)));

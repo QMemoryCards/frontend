@@ -38,12 +38,6 @@ const ErrorText = styled.span`
   line-height: 1.4;
 `;
 
-const HelperText = styled.span`
-  font-size: 13px;
-  color: #8c8c8c;
-  line-height: 1.4;
-`;
-
 const CharCounter = styled.span<{ $isError: boolean }>`
   font-size: 13px;
   color: ${props => (props.$isError ? '#ff4d4f' : '#8c8c8c')};

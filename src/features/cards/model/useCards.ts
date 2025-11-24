@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import { message } from 'antd';
+import { AxiosError } from 'axios';
 import { cardApi } from '@entities/card';
 import type { Card, CreateCardRequest, UpdateCardRequest } from '@entities/card';
 import { handleApiError } from '@shared/api';
@@ -16,8 +17,8 @@ export const useCards = (deckId: string) => {
       const response = await cardApi.getCards(deckId);
       setCards(response.data.content);
       setTotalElements(response.data.totalElements);
-    } catch (error: any) {
-      const apiError = handleApiError(error);
+    } catch (error) {
+      const apiError = handleApiError(error as AxiosError);
       message.error(apiError.message);
     } finally {
       setLoading(false);
@@ -36,8 +37,8 @@ export const useCreateCard = (deckId: string) => {
       const response = await cardApi.createCard(deckId, data);
       message.success('Карточка создана');
       return response.data;
-    } catch (error: any) {
-      const apiError = handleApiError(error);
+    } catch (error) {
+      const apiError = handleApiError(error as AxiosError);
       if (apiError.statusCode === 422) {
         message.error(`Достигнут лимит карточек (${VALIDATION.CARD.MAX_CARDS})`);
       } else {
@@ -61,8 +62,8 @@ export const useUpdateCard = (deckId: string) => {
       const response = await cardApi.updateCard(deckId, cardId, data);
       message.success('Карточка обновлена');
       return response.data;
-    } catch (error: any) {
-      const apiError = handleApiError(error);
+    } catch (error) {
+      const apiError = handleApiError(error as AxiosError);
       message.error(apiError.message);
       return null;
     } finally {
@@ -82,8 +83,8 @@ export const useDeleteCard = (deckId: string) => {
       await cardApi.deleteCard(deckId, cardId);
       message.success('Карточка удалена');
       return true;
-    } catch (error: any) {
-      const apiError = handleApiError(error);
+    } catch (error) {
+      const apiError = handleApiError(error as AxiosError);
       message.error(apiError.message);
       return false;
     } finally {
