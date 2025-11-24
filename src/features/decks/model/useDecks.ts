@@ -1,8 +1,10 @@
 import { useState, useEffect, useCallback } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { message } from 'antd';
+import { App } from 'antd';
+import { AxiosError } from 'axios';
 import { createDeck, getDeck, updateDeck, deleteDeck, getDecks } from '@entities/deck';
 import type { CreateDeckRequest, UpdateDeckRequest, DeckDetails } from '@entities/deck';
+import { handleApiError } from '@shared/api';
 import { ROUTES } from '@shared/config';
 
 interface UseDecksReturn {
@@ -23,6 +25,7 @@ export const useDecks = (initialPage: number = 0, pageSize: number = 20): UseDec
   const [currentPage, setCurrentPage] = useState(initialPage);
   const [totalPages, setTotalPages] = useState(0);
   const [totalElements, setTotalElements] = useState(0);
+  const { message } = App.useApp();
 
   const fetchDecks = useCallback(
     async (page: number = currentPage) => {
@@ -47,13 +50,22 @@ export const useDecks = (initialPage: number = 0, pageSize: number = 20): UseDec
         setTotalPages(response.totalPages);
         setTotalElements(response.totalElements);
       } catch (err: unknown) {
-        const errorMessage = err instanceof Error ? err.message : 'Ошибка загрузки колод';
+        const apiError = handleApiError(err as AxiosError);
+        let errorMessage = 'Ошибка загрузки колод';
+
+        if (apiError.statusCode === 0) {
+          errorMessage = 'Сервер недоступен. Проверьте подключение к интернету';
+        } else if (apiError.message) {
+          errorMessage = apiError.message;
+        }
+
         setError(errorMessage);
+        message.error(errorMessage);
       } finally {
         setIsLoading(false);
       }
     },
-    [currentPage, pageSize]
+    [currentPage, pageSize, message]
   );
 
   const refetch = useCallback(() => fetchDecks(currentPage), [fetchDecks, currentPage]);
@@ -76,7 +88,7 @@ export const useDecks = (initialPage: number = 0, pageSize: number = 20): UseDec
 };
 
 interface UseCreateDeckReturn {
-  createDeck: (data: CreateDeckRequest) => Promise<void>;
+  createDeck: (data: CreateDeckRequest) => Promise<boolean>;
   isLoading: boolean;
   error: string | null;
 }
@@ -85,18 +97,34 @@ export const useCreateDeck = (): UseCreateDeckReturn => {
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const navigate = useNavigate();
+  const { message } = App.useApp();
 
-  const createDeckHandler = async (data: CreateDeckRequest) => {
+  const createDeckHandler = async (data: CreateDeckRequest): Promise<boolean> => {
     setIsLoading(true);
     setError(null);
 
     try {
       await createDeck(data);
+      message.success('Колода успешно создана');
       navigate(ROUTES.DECKS);
+      return true; // Успех
     } catch (err: unknown) {
-      const errorMessage = err instanceof Error ? err.message : 'Ошибка создания колоды';
+      const apiError = handleApiError(err as AxiosError);
+      let errorMessage = 'Ошибка создания колоды';
+
+      if (apiError.statusCode === 409) {
+        errorMessage = 'Колода с таким названием уже существует';
+      } else if (apiError.statusCode === 400) {
+        errorMessage = apiError.message || 'Неверные данные для создания колоды';
+      } else if (apiError.statusCode === 0) {
+        errorMessage = 'Сервер недоступен. Проверьте подключение к интернету';
+      } else if (apiError.message) {
+        errorMessage = apiError.message;
+      }
+
       setError(errorMessage);
-      throw err;
+      message.error(errorMessage);
+      return false; // Ошибка - модалка не закроется
     } finally {
       setIsLoading(false);
     }
@@ -116,6 +144,7 @@ export const useGetDeck = (): UseGetDeckReturn => {
   const [deck, setDeck] = useState<DeckDetails | null>(null);
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const { message } = App.useApp();
 
   const fetchDeck = async (deckId: string) => {
     setIsLoading(true);
@@ -125,9 +154,20 @@ export const useGetDeck = (): UseGetDeckReturn => {
       const deckData = await getDeck(deckId);
       setDeck(deckData);
     } catch (err: unknown) {
-      const errorMessage = err instanceof Error ? err.message : 'Ошибка загрузки колоды';
+      const apiError = handleApiError(err as AxiosError);
+      let errorMessage = 'Ошибка загрузки колоды';
+
+      if (apiError.statusCode === 404) {
+        errorMessage = 'Колода не найдена';
+      } else if (apiError.statusCode === 0) {
+        errorMessage = 'Сервер недоступен. Проверьте подключение к интернету';
+      } else if (apiError.message) {
+        errorMessage = apiError.message;
+      }
+
       setError(errorMessage);
-      throw err;
+      message.error(errorMessage);
+      // НЕ бросаем ошибку дальше
     } finally {
       setIsLoading(false);
     }
@@ -137,7 +177,7 @@ export const useGetDeck = (): UseGetDeckReturn => {
 };
 
 interface UseUpdateDeckReturn {
-  updateDeck: (deckId: string, data: UpdateDeckRequest) => Promise<void>;
+  updateDeck: (deckId: string, data: UpdateDeckRequest) => Promise<boolean>;
   isLoading: boolean;
   error: string | null;
 }
@@ -146,18 +186,36 @@ export const useUpdateDeck = (): UseUpdateDeckReturn => {
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const navigate = useNavigate();
+  const { message } = App.useApp();
 
-  const updateDeckHandler = async (deckId: string, data: UpdateDeckRequest) => {
+  const updateDeckHandler = async (deckId: string, data: UpdateDeckRequest): Promise<boolean> => {
     setIsLoading(true);
     setError(null);
 
     try {
       await updateDeck(deckId, data);
+      message.success('Колода успешно обновлена');
       navigate(ROUTES.DECKS);
+      return true; // Успех
     } catch (err: unknown) {
-      const errorMessage = err instanceof Error ? err.message : 'Ошибка обновления колоды';
+      const apiError = handleApiError(err as AxiosError);
+      let errorMessage = 'Ошибка обновления колоды';
+
+      if (apiError.statusCode === 409) {
+        errorMessage = 'Колода с таким названием уже существует';
+      } else if (apiError.statusCode === 404) {
+        errorMessage = 'Колода не найдена';
+      } else if (apiError.statusCode === 400) {
+        errorMessage = apiError.message || 'Неверные данные для обновления колоды';
+      } else if (apiError.statusCode === 0) {
+        errorMessage = 'Сервер недоступен. Проверьте подключение к интернету';
+      } else if (apiError.message) {
+        errorMessage = apiError.message;
+      }
+
       setError(errorMessage);
-      throw err;
+      message.error(errorMessage);
+      return false; // Ошибка - модалка не закроется
     } finally {
       setIsLoading(false);
     }
@@ -175,6 +233,7 @@ interface UseDeleteDeckReturn {
 export const useDeleteDeck = (): UseDeleteDeckReturn => {
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const { message } = App.useApp();
 
   const deleteDeckHandler = async (deckId: string) => {
     setIsLoading(true);
@@ -182,9 +241,19 @@ export const useDeleteDeck = (): UseDeleteDeckReturn => {
 
     try {
       await deleteDeck(deckId);
-      message.success('Колода удалена');
+      message.success('Колода успешно удалена');
     } catch (err: unknown) {
-      const errorMessage = err instanceof Error ? err.message : 'Ошибка удаления колоды';
+      const apiError = handleApiError(err as AxiosError);
+      let errorMessage = 'Ошибка удаления колоды';
+
+      if (apiError.statusCode === 404) {
+        errorMessage = 'Колода не найдена';
+      } else if (apiError.statusCode === 0) {
+        errorMessage = 'Сервер недоступен. Проверьте подключение к интернету';
+      } else if (apiError.message) {
+        errorMessage = apiError.message;
+      }
+
       setError(errorMessage);
       message.error(errorMessage);
     } finally {
