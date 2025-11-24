@@ -62,8 +62,12 @@ export const useStudy = (deckId: string) => {
   };
 
   const isLastCard = currentCardIndex === cards.length - 1;
-  const isCompleted = currentCardIndex === cards.length - 1 && (rememberedCount + forgottenCount) === cards.length;
-  const progress = cards.length > 0 ? Math.round(((currentCardIndex + (showAnswer ? 1 : 0)) / cards.length) * 100) : 0;
+  const isCompleted =
+    currentCardIndex === cards.length - 1 && rememberedCount + forgottenCount === cards.length;
+  const progress =
+    cards.length > 0
+      ? Math.round(((currentCardIndex + (showAnswer ? 1 : 0)) / cards.length) * 100)
+      : 0;
 
   return {
     cards,
