@@ -91,10 +91,15 @@ export const EditCardModal: React.FC<EditCardModalProps> = ({
       return;
     }
 
-    await onSubmit(card.id, {
-      question: question.trim(),
-      answer: answer.trim(),
-    });
+    try {
+      await onSubmit(card.id, {
+        question: question.trim(),
+        answer: answer.trim(),
+      });
+      onClose();
+    } catch {
+      // Ошибка обработана в хуке
+    }
   };
 
   const isFormValid =

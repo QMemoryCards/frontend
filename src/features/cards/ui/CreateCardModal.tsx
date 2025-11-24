@@ -98,10 +98,15 @@ export const CreateCardModal: React.FC<CreateCardModalProps> = ({
       return;
     }
 
-    await onSubmit({
-      question: question.trim(),
-      answer: answer.trim(),
-    });
+    try {
+      await onSubmit({
+        question: question.trim(),
+        answer: answer.trim(),
+      });
+      onClose();
+    } catch {
+      // Ошибка обработана в хуке
+    }
   };
 
   const isFormValid =

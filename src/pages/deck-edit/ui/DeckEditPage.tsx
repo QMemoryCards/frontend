@@ -260,7 +260,6 @@ export const DeckEditPage: React.FC = () => {
     const newCard = await createCard(data);
     if (newCard) {
       setCards([...cards, newCard]);
-      setIsCreateModalOpen(false);
     }
   };
 
@@ -273,7 +272,6 @@ export const DeckEditPage: React.FC = () => {
     const updated = await updateCard(cardId, data);
     if (updated) {
       setCards(cards.map(c => (c.id === cardId ? updated : c)));
-      setIsEditModalOpen(false);
       setSelectedCard(null);
     }
   };
