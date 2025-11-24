@@ -1,11 +1,12 @@
 import React, { useState, useMemo } from 'react';
+import { useNavigate } from 'react-router-dom';
 import styled from 'styled-components';
 import { Modal } from 'antd';
 import { PlusOutlined, SearchOutlined } from '@ant-design/icons';
 import { DeckCard } from '@entities/deck';
 import type { DeckDetails } from '@entities/deck';
-import { useDecks, useCreateDeck, useUpdateDeck, useDeleteDeck } from '@features/decks';
-import { CreateDeckModal, EditDeckModal } from '@features/decks';
+import { useDecks, useCreateDeck, useDeleteDeck } from '@features/decks';
+import { CreateDeckModal } from '@features/decks';
 import { Spinner } from '@shared/ui';
 
 const Container = styled.div`
@@ -221,15 +222,13 @@ const StatValue = styled.span`
 type FilterStatus = 'all' | 'learned' | 'learning' | 'new';
 
 export const DecksPage: React.FC = () => {
+  const navigate = useNavigate();
   const [isCreateModalOpen, setIsCreateModalOpen] = useState(false);
-  const [isEditModalOpen, setIsEditModalOpen] = useState(false);
-  const [selectedDeck, setSelectedDeck] = useState<DeckDetails | null>(null);
   const [searchQuery, setSearchQuery] = useState('');
   const [filterStatus, setFilterStatus] = useState<FilterStatus>('all');
 
   const { decks, isLoading, totalElements, refetch } = useDecks();
   const { createDeck: createDeckFn, isLoading: isCreating } = useCreateDeck();
-  const { updateDeck: updateDeckFn, isLoading: isUpdating } = useUpdateDeck();
   const { deleteDeck: deleteDeckFn } = useDeleteDeck();
 
   const filteredDecks = useMemo(() => {
@@ -261,11 +260,6 @@ export const DecksPage: React.FC = () => {
     await refetch();
   };
 
-  const handleUpdateDeck = async (deckId: string, data: any) => {
-    await updateDeckFn(deckId, data);
-    await refetch();
-  };
-
   const handleDeleteDeck = (deckId: string) => {
     Modal.confirm({
       title: 'Удалить колоду?',
@@ -281,8 +275,7 @@ export const DecksPage: React.FC = () => {
   };
 
   const handleEditDeck = (deck: DeckDetails) => {
-    setSelectedDeck(deck);
-    setIsEditModalOpen(true);
+    navigate(`/decks/${deck.id}/edit`);
   };
 
   if (isLoading) {
@@ -396,17 +389,6 @@ export const DecksPage: React.FC = () => {
         onClose={() => setIsCreateModalOpen(false)}
         onSubmit={handleCreateDeck}
         isLoading={isCreating}
-      />
-
-      <EditDeckModal
-        isOpen={isEditModalOpen}
-        deck={selectedDeck}
-        onClose={() => {
-          setIsEditModalOpen(false);
-          setSelectedDeck(null);
-        }}
-        onSubmit={handleUpdateDeck}
-        isLoading={isUpdating}
       />
     </Container>
   );
