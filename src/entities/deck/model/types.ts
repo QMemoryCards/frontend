@@ -25,9 +25,9 @@ export interface GetDecksResponse {
     id: string;
     name: string;
     description: string;
-    cardcount: number;
+    cardCount: number;
     learnedPercent: number;
-    laststudied: string;
+    lastStudied: string;
     createdAt: string;
     updatedAt: string;
   }>;

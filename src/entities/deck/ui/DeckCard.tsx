@@ -179,11 +179,11 @@ export const DeckCard: React.FC<DeckCardProps> = ({ deck, onEdit, onDelete, onCl
       <Stats>
         <StatItem>
           <StatLabel>Карточек</StatLabel>
-          <StatValue>{deck.cardCount}</StatValue>
+          <StatValue>{deck.cardCount ?? 0}</StatValue>
         </StatItem>
         <StatItem>
           <StatLabel>Изучено</StatLabel>
-          <StatValue>{deck.learnedPercent}%</StatValue>
+          <StatValue>{deck.learnedPercent ?? 0}%</StatValue>
         </StatItem>
       </Stats>
 

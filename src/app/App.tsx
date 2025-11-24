@@ -1,4 +1,4 @@
-import { ConfigProvider } from 'antd';
+import { ConfigProvider, App as AntdApp } from 'antd';
 import { AppRouter } from './routes';
 import { antdTheme } from '@shared/config';
 import './styles/index.css';
@@ -10,7 +10,9 @@ import './styles/index.css';
 function App() {
   return (
     <ConfigProvider theme={antdTheme}>
-      <AppRouter />
+      <AntdApp>
+        <AppRouter />
+      </AntdApp>
     </ConfigProvider>
   );
 }
