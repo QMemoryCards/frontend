@@ -43,11 +43,14 @@ export const setupResponseInterceptor = (instance: AxiosInstance): void => {
       if (error.response?.status === 401) {
         removeToken();
         // Редирект на страницу входа
-        window.location.href = '/';
+        window.location.href = '/login';
       }
 
+      // Если нет доступа (не авторизован) - редирект на логин
       if (error.response?.status === 403) {
-        console.error('Access denied');
+        console.error('Access denied - redirecting to login');
+        removeToken();
+        window.location.href = '/login';
       }
 
       return Promise.reject(error);
