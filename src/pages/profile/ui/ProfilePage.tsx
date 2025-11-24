@@ -187,7 +187,7 @@ export const ProfilePage: React.FC = () => {
   const navigate = useNavigate();
   const { modal, message: messageApi } = App.useApp();
 
-  const { user, loading: userLoading, fetchUser } = useGetUser();
+  const { user, setUser, loading: userLoading, fetchUser } = useGetUser();
   const { updateUser, loading: updateLoading } = useUpdateUser();
   const { changePassword, loading: passwordLoading } = useChangePassword();
   const { deleteUser, loading: deleteLoading } = useDeleteUser();
@@ -262,8 +262,9 @@ export const ProfilePage: React.FC = () => {
 
     const updatedUser = await updateUser({ email, login });
     if (updatedUser) {
+      setUser(updatedUser);
+      messageApi.success('Данные успешно обновлены');
       setEditMode(false);
-      fetchUser();
     }
   };
 
@@ -275,11 +276,18 @@ export const ProfilePage: React.FC = () => {
       return;
     }
 
-    const success = await changePassword({ currentPassword, newPassword });
-    if (success) {
+    const result = await changePassword({ currentPassword, newPassword });
+    if (result.success) {
+      messageApi.success('Пароль успешно изменен');
       setPasswordMode(false);
       setCurrentPassword('');
       setNewPassword('');
+      setCurrentPasswordError('');
+      setNewPasswordError('');
+    } else if (result.statusCode === 403) {
+      setCurrentPasswordError('Неверный текущий пароль');
+    } else {
+      messageApi.error(result.message || 'Ошибка при изменении пароля');
     }
   };
 
@@ -310,6 +318,7 @@ export const ProfilePage: React.FC = () => {
       onOk: async () => {
         const success = await deleteUser();
         if (success) {
+          messageApi.success('Аккаунт успешно удален');
           navigate('/');
         }
       },

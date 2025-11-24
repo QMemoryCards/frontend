@@ -47,10 +47,15 @@ export const setupResponseInterceptor = (instance: AxiosInstance): void => {
       }
 
       // Если нет доступа (не авторизован) - редирект на логин
+      // НО не для эндпоинта смены пароля (там 403 означает неверный текущий пароль)
       if (error.response?.status === 403) {
-        console.error('Access denied - redirecting to login');
-        removeToken();
-        window.location.href = '/login';
+        const isPasswordChange = error.config?.url?.includes('/users/me/password');
+
+        if (!isPasswordChange) {
+          console.error('Access denied - redirecting to login');
+          removeToken();
+          window.location.href = '/login';
+        }
       }
 
       return Promise.reject(error);

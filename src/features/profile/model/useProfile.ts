@@ -22,7 +22,7 @@ export const useGetUser = () => {
     }
   }, []);
 
-  return { user, loading, fetchUser };
+  return { user, setUser, loading, fetchUser };
 };
 
 export const useUpdateUser = () => {
@@ -32,7 +32,6 @@ export const useUpdateUser = () => {
     setLoading(true);
     try {
       const response = await userApi.updateMe(data);
-      message.success('Данные успешно обновлены');
       return response.data;
     } catch (error) {
       const apiError = handleApiError(error as AxiosError);
@@ -49,16 +48,16 @@ export const useUpdateUser = () => {
 export const useChangePassword = () => {
   const [loading, setLoading] = useState(false);
 
-  const changePassword = async (data: ChangePasswordRequest): Promise<boolean> => {
+  const changePassword = async (
+    data: ChangePasswordRequest
+  ): Promise<{ success: boolean; statusCode?: number; message?: string }> => {
     setLoading(true);
     try {
       await userApi.changePassword(data);
-      message.success('Пароль успешно изменен');
-      return true;
+      return { success: true };
     } catch (error) {
       const apiError = handleApiError(error as AxiosError);
-      message.error(apiError.message);
-      return false;
+      return { success: false, statusCode: apiError.statusCode, message: apiError.message };
     } finally {
       setLoading(false);
     }
@@ -74,7 +73,6 @@ export const useDeleteUser = () => {
     setLoading(true);
     try {
       await userApi.deleteMe();
-      message.success('Аккаунт удален');
       return true;
     } catch (error) {
       const apiError = handleApiError(error as AxiosError);
