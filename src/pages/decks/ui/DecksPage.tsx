@@ -312,6 +312,10 @@ export const DecksPage: React.FC = () => {
     navigate(`/decks/${deck.id}/edit`);
   };
 
+  const handleStudyDeck = (deckId: string) => {
+    navigate(`/decks/${deckId}/study`);
+  };
+
   if (isLoading) {
     return (
       <Container>
@@ -417,6 +421,7 @@ export const DecksPage: React.FC = () => {
                 deck={deck}
                 onEdit={handleEditDeck}
                 onDelete={handleDeleteDeck}
+                onStudy={handleStudyDeck}
               />
             ))}
           </DecksGrid>

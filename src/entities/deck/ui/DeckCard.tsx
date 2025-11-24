@@ -1,12 +1,13 @@
 import React from 'react';
 import styled from 'styled-components';
-import { DeleteOutlined, EditOutlined } from '@ant-design/icons';
+import { DeleteOutlined, EditOutlined, PlayCircleOutlined } from '@ant-design/icons';
 import type { DeckDetails } from '../model/types';
 
 interface DeckCardProps {
   deck: DeckDetails;
   onEdit: (deck: DeckDetails) => void;
   onDelete: (deckId: string) => void;
+  onStudy?: (deckId: string) => void;
   onClick?: (deckId: string) => void;
 }
 
@@ -128,7 +129,35 @@ const LastStudied = styled.div`
   margin-top: 8px;
 `;
 
-export const DeckCard: React.FC<DeckCardProps> = ({ deck, onEdit, onDelete, onClick }) => {
+const StudyButton = styled.button`
+  width: 100%;
+  height: 40px;
+  margin-top: 16px;
+  background: #1890ff;
+  color: #ffffff;
+  border: none;
+  border-radius: 6px;
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  transition: all 0.3s;
+
+  &:hover {
+    background: #40a9ff;
+  }
+
+  &:disabled {
+    background: #d9d9d9;
+    color: #8c8c8c;
+    cursor: not-allowed;
+  }
+`;
+
+export const DeckCard: React.FC<DeckCardProps> = ({ deck, onEdit, onDelete, onStudy, onClick }) => {
   const handleEdit = (e: React.MouseEvent) => {
     e.stopPropagation();
     onEdit(deck);
@@ -137,6 +166,13 @@ export const DeckCard: React.FC<DeckCardProps> = ({ deck, onEdit, onDelete, onCl
   const handleDelete = (e: React.MouseEvent) => {
     e.stopPropagation();
     onDelete(deck.id);
+  };
+
+  const handleStudy = (e: React.MouseEvent) => {
+    e.stopPropagation();
+    if (onStudy) {
+      onStudy(deck.id);
+    }
   };
 
   const handleClick = () => {
@@ -192,6 +228,11 @@ export const DeckCard: React.FC<DeckCardProps> = ({ deck, onEdit, onDelete, onCl
       </ProgressBar>
 
       <LastStudied>Последнее изучение: {formatDate(deck.lastStudied)}</LastStudied>
+
+      <StudyButton onClick={handleStudy} disabled={deck.cardCount === 0}>
+        <PlayCircleOutlined />
+        {deck.cardCount === 0 ? 'Нет карточек' : 'Изучить'}
+      </StudyButton>
     </Card>
   );
 };
