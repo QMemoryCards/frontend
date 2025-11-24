@@ -10,29 +10,44 @@ export const FormContainer = styled.form`
 `;
 
 export const PasswordRequirements = styled.div`
-  background-color: #f5f5f5;
-  border-radius: 6px;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
   padding: 12px 16px;
+  background-color: #f9f9f9;
+  border-radius: 6px;
+  border-left: 3px solid #1890ff;
   margin-top: -12px;
+  animation: slideDown 0.2s ease-out;
+
+  @keyframes slideDown {
+    from {
+      opacity: 0;
+      transform: translateY(-8px);
+    }
+    to {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
 `;
 
-export const RequirementsTitle = styled.p`
+export const RequirementItem = styled.div<{ $isValid: boolean }>`
   font-size: 13px;
-  font-weight: 500;
-  color: #595959;
-  margin: 0 0 8px 0;
-`;
+  color: ${props => (props.$isValid ? '#52c41a' : '#8c8c8c')};
+  line-height: 1.5;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  transition: color 0.2s ease;
+  font-weight: ${props => (props.$isValid ? '500' : '400')};
 
-export const RequirementsList = styled.ul`
-  margin: 0;
-  padding-left: 20px;
-  list-style-type: disc;
-`;
-
-export const RequirementItem = styled.li`
-  font-size: 12px;
-  color: #8c8c8c;
-  line-height: 1.6;
+  &::before {
+    content: '';
+    width: 4px;
+    height: 4px;
+    flex-shrink: 0;
+  }
 `;
 
 export const SubmitButton = styled.button<{ $disabled: boolean }>`

@@ -1,18 +1,15 @@
 import React, { useState, useEffect } from 'react';
-import { Input } from '@shared/ui';
+import { Input, Spinner } from '@shared/ui';
 import { ROUTES } from '@shared/config';
 import {
   validateEmail,
   validateLogin,
   validatePassword,
-  getPasswordRequirements,
 } from '@shared/lib/validation';
 import { useRegister } from '../model/useRegister';
 import {
   FormContainer,
   PasswordRequirements,
-  RequirementsTitle,
-  RequirementsList,
   RequirementItem,
   SubmitButton,
   ErrorMessage,
@@ -33,6 +30,16 @@ export const RegisterForm: React.FC = () => {
   const [emailTouched, setEmailTouched] = useState(false);
   const [loginTouched, setLoginTouched] = useState(false);
   const [passwordTouched, setPasswordTouched] = useState(false);
+  const [passwordFocused, setPasswordFocused] = useState(false);
+
+  // Проверка отдельных требований к паролю для интерактивной валидации
+  const passwordChecks = {
+    length: password.length >= 8 && password.length <= 64,
+    uppercase: /[A-Z]/.test(password),
+    lowercase: /[a-z]/.test(password),
+    number: /[0-9]/.test(password),
+    special: /[!@#$%^&*()_+\-=[\]{};':"\\|,.<>/?]/.test(password),
+  };
 
   useEffect(() => {
     if (emailTouched && email) {
@@ -82,11 +89,7 @@ export const RegisterForm: React.FC = () => {
       return;
     }
 
-    try {
-      await register({ email, login, password });
-    } catch (err) {
-      console.error('Registration error:', err);
-    }
+    await register({ email, login, password });
   };
 
   return (
@@ -122,20 +125,36 @@ export const RegisterForm: React.FC = () => {
         placeholder="Введите пароль"
         value={password}
         onChange={e => setPassword(e.target.value)}
-        onBlur={() => setPasswordTouched(true)}
+        onFocus={() => setPasswordFocused(true)}
+        onBlur={() => {
+          setPasswordTouched(true);
+          setPasswordFocused(false);
+        }}
         error={passwordTouched ? passwordError : ''}
+        helperText={!passwordTouched && !passwordFocused ? "Мин. 8 символов, заглавная буква, строчная, цифра, спецсимвол" : ""}
         disabled={isLoading}
         autoComplete="new-password"
       />
 
-      <PasswordRequirements>
-        <RequirementsTitle>Требования к паролю:</RequirementsTitle>
-        <RequirementsList>
-          {getPasswordRequirements().map((req, index) => (
-            <RequirementItem key={index}>{req}</RequirementItem>
-          ))}
-        </RequirementsList>
-      </PasswordRequirements>
+      {(passwordFocused || (passwordTouched && !passwordError)) && password && (
+        <PasswordRequirements>
+          <RequirementItem $isValid={passwordChecks.length}>
+            {passwordChecks.length ? '✓' : '○'} 8-64 символа
+          </RequirementItem>
+          <RequirementItem $isValid={passwordChecks.uppercase}>
+            {passwordChecks.uppercase ? '✓' : '○'} Заглавная буква (A-Z)
+          </RequirementItem>
+          <RequirementItem $isValid={passwordChecks.lowercase}>
+            {passwordChecks.lowercase ? '✓' : '○'} Строчная буква (a-z)
+          </RequirementItem>
+          <RequirementItem $isValid={passwordChecks.number}>
+            {passwordChecks.number ? '✓' : '○'} Цифра (0-9)
+          </RequirementItem>
+          <RequirementItem $isValid={passwordChecks.special}>
+            {passwordChecks.special ? '✓' : '○'} Спецсимвол (!@#$%...)
+          </RequirementItem>
+        </PasswordRequirements>
+      )}
 
       {error && <ErrorMessage>{error}</ErrorMessage>}
 
@@ -144,7 +163,14 @@ export const RegisterForm: React.FC = () => {
         disabled={!isFormValid || isLoading}
         $disabled={!isFormValid || isLoading}
       >
-        {isLoading ? 'Регистрация...' : 'Зарегистрироваться'}
+        {isLoading ? (
+          <>
+            <Spinner size={16} color="#ffffff" />
+            Регистрация...
+          </>
+        ) : (
+          'Зарегистрироваться'
+        )}
       </SubmitButton>
 
       <LoginLink to={ROUTES.LOGIN}>Уже есть аккаунт? Войти</LoginLink>
