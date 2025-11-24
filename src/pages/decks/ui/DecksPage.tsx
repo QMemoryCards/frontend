@@ -2,12 +2,13 @@ import React, { useState, useMemo, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import styled from 'styled-components';
 import { App } from 'antd';
-import { PlusOutlined, SearchOutlined } from '@ant-design/icons';
+import { PlusOutlined, SearchOutlined, UserOutlined } from '@ant-design/icons';
 import { DeckCard } from '@entities/deck';
 import type { DeckDetails, CreateDeckRequest } from '@entities/deck';
 import { useDecks, useCreateDeck, useDeleteDeck } from '@features/decks';
 import { CreateDeckModal } from '@features/decks';
 import { Spinner } from '@shared/ui';
+import { ROUTES } from '@shared/config';
 
 const Container = styled.div`
   min-height: 100vh;
@@ -24,11 +25,18 @@ const Header = styled.div`
   margin: 0 auto 32px;
 `;
 
+const TitleRow = styled.div`
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 24px;
+`;
+
 const Title = styled.h1`
   font-size: 32px;
   font-weight: 700;
   color: #262626;
-  margin: 0 0 24px 0;
+  margin: 0;
 
   @media (max-width: 768px) {
     font-size: 24px;
@@ -140,6 +148,27 @@ const CreateButton = styled.button`
   @media (max-width: 768px) {
     width: 100%;
     justify-content: center;
+  }
+`;
+
+const ProfileButton = styled.button`
+  width: 44px;
+  height: 44px;
+  border-radius: 50%;
+  border: 2px solid #d9d9d9;
+  background: #ffffff;
+  color: #595959;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 18px;
+  transition: all 0.3s;
+
+  &:hover {
+    border-color: #1890ff;
+    color: #1890ff;
+    transform: scale(1.05);
   }
 `;
 
@@ -296,7 +325,12 @@ export const DecksPage: React.FC = () => {
   return (
     <Container>
       <Header>
-        <Title>Мои колоды</Title>
+        <TitleRow>
+          <Title>Мои колоды</Title>
+          <ProfileButton onClick={() => navigate(ROUTES.PROFILE)} aria-label="Профиль">
+            <UserOutlined />
+          </ProfileButton>
+        </TitleRow>
 
         {decks.length > 0 && (
           <Stats>

@@ -8,6 +8,11 @@ export const VALIDATION = {
     MIN_LENGTH: 1,
     MAX_LENGTH: 254,
   },
+  USER: {
+    EMAIL_MAX: 254,
+    LOGIN_MAX: 64,
+    PASSWORD_MAX: 64,
+  },
   LOGIN: {
     MIN_LENGTH: 3,
     MAX_LENGTH: 64,
@@ -36,6 +41,7 @@ export const ROUTES = {
   DECKS: '/decks',
   DECK_EDIT: '/decks/:id/edit',
   STUDY: '/decks/:id/study',
+  PROFILE: '/profile',
   ACCOUNT: '/account',
   SHARE: '/share/:token',
 } as const;
