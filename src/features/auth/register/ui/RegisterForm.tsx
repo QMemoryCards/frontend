@@ -1,11 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { Input, Spinner } from '@shared/ui';
 import { ROUTES } from '@shared/config';
-import {
-  validateEmail,
-  validateLogin,
-  validatePassword,
-} from '@shared/lib/validation';
+import { validateEmail, validateLogin, validatePassword } from '@shared/lib/validation';
 import { useRegister } from '../model/useRegister';
 import {
   FormContainer,
@@ -131,7 +127,11 @@ export const RegisterForm: React.FC = () => {
           setPasswordFocused(false);
         }}
         error={passwordTouched ? passwordError : ''}
-        helperText={!passwordTouched && !passwordFocused ? "Мин. 8 символов, заглавная буква, строчная, цифра, спецсимвол" : ""}
+        helperText={
+          !passwordTouched && !passwordFocused
+            ? 'Мин. 8 символов, заглавная буква, строчная, цифра, спецсимвол'
+            : ''
+        }
         disabled={isLoading}
         autoComplete="new-password"
       />

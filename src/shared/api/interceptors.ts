@@ -43,9 +43,10 @@ export const setupResponseInterceptor = (instance: AxiosInstance): void => {
       if (error.response?.status === 401) {
         // НЕ делаем редирект для эндпоинтов логина и регистрации
         // (там 401 означает неверные учетные данные)
-        const isAuthEndpoint = error.config?.url?.includes('/auth/login') || 
-                               error.config?.url?.includes('/auth/register');
-        
+        const isAuthEndpoint =
+          error.config?.url?.includes('/auth/login') ||
+          error.config?.url?.includes('/auth/register');
+
         if (!isAuthEndpoint) {
           removeToken();
           // Редирект на страницу входа только если это не auth эндпоинт
