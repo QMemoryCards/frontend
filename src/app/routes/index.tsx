@@ -5,6 +5,7 @@ import { Spinner } from '@shared/ui';
 import { WelcomePage } from '@pages/welcome';
 import { ROUTES } from '@shared/config';
 import { setGlobalMessage } from '@shared/lib/toast';
+import { SharedDeckPage } from '@pages/deck-shared';
 
 // Lazy load страниц для оптимизации производительности
 const LoginPage = lazy(() => import('@pages/auth').then(m => ({ default: m.LoginPage })));
