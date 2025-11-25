@@ -43,7 +43,7 @@ export const ROUTES = {
   STUDY: '/decks/:id/study',
   PROFILE: '/profile',
   ACCOUNT: '/account',
-  SHARE: '/share/:token',
+  SHARE: '/shared-deck/:token',
 } as const;
 
 export const STORAGE_KEYS = {

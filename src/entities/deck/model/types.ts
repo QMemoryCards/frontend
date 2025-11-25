@@ -63,3 +63,20 @@ export interface UpdateDeckResponse {
   createdAt: string;
   updatedAt: string;
 }
+
+export interface ShareDeckResponse {
+  token: string;
+  url: string;
+}
+
+export interface SharedDeck {
+  name: string;
+  description: string;
+  cardCount: number;
+}
+
+export interface ImportSharedDeckRequest {
+  newName?: string;
+  description?: string;
+}
+

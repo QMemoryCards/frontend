@@ -5,6 +5,7 @@ import { Spinner } from '@shared/ui';
 import { WelcomePage } from '@pages/welcome';
 import { ROUTES } from '@shared/config';
 import { setGlobalMessage } from '@shared/lib/toast';
+import { SharedDeckPage } from '@pages/deck-shared';
 
 // Lazy load страниц для оптимизации производительности
 const LoginPage = lazy(() => import('@pages/auth').then(m => ({ default: m.LoginPage })));
@@ -84,10 +85,13 @@ const router = createBrowserRouter([
       </Suspense>
     ),
   },
-  // Временная заглушка для других маршрутов
   {
-    path: '*',
-    element: <WelcomePage />,
+    path: ROUTES.SHARE,
+    element: (
+      <Suspense fallback={<PageLoader />}>
+        <SharedDeckPage />
+      </Suspense>
+    ),
   },
 ]);
 

@@ -1,8 +1,14 @@
 import React, { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import styled from 'styled-components';
-import { App } from 'antd';
-import { PlusOutlined, ArrowLeftOutlined, SaveOutlined } from '@ant-design/icons';
+import { App, Modal, Button } from 'antd';
+import {
+  PlusOutlined,
+  ArrowLeftOutlined,
+  SaveOutlined,
+  ShareAltOutlined,
+  CopyOutlined,
+} from '@ant-design/icons';
 import { Input } from '@shared/ui';
 import { CardItem } from '@entities/card';
 import type { Card, CreateCardRequest, UpdateCardRequest } from '@entities/card';
@@ -12,6 +18,7 @@ import { CreateCardModal, EditCardModal } from '@features/cards';
 import { validateDeckName, validateDeckDescription } from '@shared/lib/validation';
 import { VALIDATION } from '@shared/config';
 import { Spinner } from '@shared/ui';
+import { useShareDeck } from '@features/decks/model/useDecks.ts';
 
 const Container = styled.div`
   min-height: 100vh;
@@ -66,6 +73,12 @@ const Title = styled.h1`
   }
 `;
 
+const ActionButtons = styled.div`
+  display: flex;
+  gap: 12px;
+  align-items: center;
+`;
+
 const SaveButton = styled.button`
   background: #1890ff;
   border: none;
@@ -82,6 +95,30 @@ const SaveButton = styled.button`
 
   &:hover {
     background: #40a9ff;
+  }
+
+  &:disabled {
+    background: #d9d9d9;
+    cursor: not-allowed;
+  }
+`;
+
+const ShareButton = styled.button`
+  background: #52c41a;
+  border: none;
+  border-radius: 6px;
+  padding: 8px 20px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  cursor: pointer;
+  font-size: 14px;
+  font-weight: 500;
+  color: #ffffff;
+  transition: all 0.3s;
+
+  &:hover {
+    background: #73d13d;
   }
 
   &:disabled {
@@ -194,6 +231,22 @@ const LoadingContainer = styled.div`
   min-height: 400px;
 `;
 
+const ShareModalContainer = styled.div`
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+`;
+
+const ShareLinkInput = styled(Input)`
+  flex: 1;
+`;
+
+const CopyButton = styled(Button)`
+  display: flex;
+  align-items: center;
+  gap: 8px;
+`;
+
 export const DeckEditPage: React.FC = () => {
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
@@ -205,6 +258,7 @@ export const DeckEditPage: React.FC = () => {
   const { createCard, loading: createLoading } = useCreateCard(id || '');
   const { updateCard, loading: updateCardLoading } = useUpdateCard(id || '');
   const { deleteCard } = useDeleteCard(id || '');
+  const { shareDeck: shareDeckApi, isLoading: isGeneratingShare } = useShareDeck();
 
   const [name, setName] = useState('');
   const [description, setDescription] = useState('');
@@ -212,6 +266,8 @@ export const DeckEditPage: React.FC = () => {
   const [descriptionError, setDescriptionError] = useState('');
   const [isCreateModalOpen, setIsCreateModalOpen] = useState(false);
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
+  const [isShareModalOpen, setIsShareModalOpen] = useState(false);
+  const [shareUrl, setShareUrl] = useState('');
   const [selectedCard, setSelectedCard] = useState<Card | null>(null);
 
   useEffect(() => {
@@ -255,6 +311,24 @@ export const DeckEditPage: React.FC = () => {
     });
 
     fetchDeck(id);
+  };
+
+  const handleGenerateShareLink = async () => {
+    if (!id) return;
+
+    const result = await shareDeckApi(id);
+    if (result) {
+      const shareLink = `${window.location.origin}/shared-deck/${result.token}`;
+      setShareUrl(shareLink);
+      setIsShareModalOpen(true);
+    }
+  };
+
+  const handleCopyToClipboard = async () => {
+    if (!shareUrl) return;
+
+    await navigator.clipboard.writeText(shareUrl);
+    message.success('Ссылка скопирована в буфер обмена');
   };
 
   const handleCreateCard = async (data: CreateCardRequest) => {
@@ -332,10 +406,16 @@ export const DeckEditPage: React.FC = () => {
             Назад
           </BackButton>
           <Title>Редактирование колоды</Title>
-          <SaveButton onClick={handleSave} disabled={!isFormValid || updateLoading}>
-            <SaveOutlined />
-            Сохранить
-          </SaveButton>
+          <ActionButtons>
+            <ShareButton onClick={handleGenerateShareLink} disabled={isGeneratingShare || !id}>
+              <ShareAltOutlined />
+              {isGeneratingShare ? 'Генерация...' : 'Поделиться'}
+            </ShareButton>
+            <SaveButton onClick={handleSave} disabled={!isFormValid || updateLoading}>
+              <SaveOutlined />
+              Сохранить
+            </SaveButton>
+          </ActionButtons>
         </Header>
 
         <DeckInfoSection>
@@ -428,6 +508,33 @@ export const DeckEditPage: React.FC = () => {
         onSubmit={handleUpdateCard}
         isLoading={updateCardLoading}
       />
+
+      <Modal
+        title="Поделиться колодой"
+        open={isShareModalOpen}
+        onCancel={() => setIsShareModalOpen(false)}
+        footer={[
+          <Button key="close" onClick={() => setIsShareModalOpen(false)}>
+            Закрыть
+          </Button>,
+          <CopyButton
+            key="copy"
+            type="primary"
+            icon={<CopyOutlined />}
+            onClick={handleCopyToClipboard}
+          >
+            Копировать ссылку
+          </CopyButton>,
+        ]}
+      >
+        <ShareModalContainer>
+          <p>Ссылка для общего доступа к колоде:</p>
+          <ShareLinkInput value={shareUrl} readOnly placeholder="Ссылка для общего доступа" />
+          <p style={{ fontSize: '12px', color: '#8c8c8c', margin: 0 }}>
+            Любой, у кого есть эта ссылка, сможет просмотреть вашу колоду
+          </p>
+        </ShareModalContainer>
+      </Modal>
     </Container>
   );
 };

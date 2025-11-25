@@ -6,4 +6,7 @@ export type {
   DeckDetails,
   UpdateDeckRequest,
   UpdateDeckResponse,
+  ShareDeckResponse,
+  SharedDeck,
+  ImportSharedDeckRequest
 } from './types'

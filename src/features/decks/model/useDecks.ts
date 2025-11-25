@@ -2,10 +2,20 @@ import { useState, useEffect, useCallback } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { App } from 'antd';
 import { AxiosError } from 'axios';
-import { createDeck, getDeck, updateDeck, deleteDeck, getDecks } from '@entities/deck';
+import {
+  createDeck,
+  getDeck,
+  updateDeck,
+  deleteDeck,
+  getDecks,
+  ShareDeckResponse,
+  SharedDeck,
+  ImportSharedDeckRequest,
+} from '@entities/deck';
 import type { CreateDeckRequest, UpdateDeckRequest, DeckDetails } from '@entities/deck';
 import { handleApiError } from '@shared/api';
 import { ROUTES } from '@shared/config';
+import { getSharedDeck, importSharedDeck, shareDeck } from '@entities/deck/api/deckApi.ts';
 
 interface UseDecksReturn {
   decks: DeckDetails[];
@@ -262,4 +272,157 @@ export const useDeleteDeck = (): UseDeleteDeckReturn => {
   };
 
   return { deleteDeck: deleteDeckHandler, isLoading, error };
+};
+
+interface UseShareDeckReturn {
+  shareDeck: (deckId: string) => Promise<ShareDeckResponse | null>;
+  isLoading: boolean;
+  error: string | null;
+  shareData: ShareDeckResponse | null;
+}
+
+export const useShareDeck = (): UseShareDeckReturn => {
+  const [isLoading, setIsLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+  const [shareData, setShareData] = useState<ShareDeckResponse | null>(null);
+  const { message } = App.useApp();
+
+  const shareDeckHandler = async (deckId: string): Promise<ShareDeckResponse | null> => {
+    setIsLoading(true);
+    setError(null);
+    setShareData(null);
+
+    try {
+      const data = await shareDeck(deckId);
+      setShareData(data);
+      message.success('Ссылка для общего доступа создана');
+      return data;
+    } catch (err: unknown) {
+      const apiError = handleApiError(err as AxiosError);
+      let errorMessage = 'Ошибка создания общей ссылки';
+
+      if (apiError.statusCode === 401) {
+        errorMessage = 'Пользователь не авторизован';
+      } else if (apiError.statusCode === 403) {
+        errorMessage = 'Доступ запрещен';
+      } else if (apiError.statusCode === 404) {
+        errorMessage = 'Колода не найдена';
+      } else if (apiError.message) {
+        errorMessage = apiError.message;
+      }
+
+      setError(errorMessage);
+      message.error(errorMessage);
+      return null;
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  return {
+    shareDeck: shareDeckHandler,
+    isLoading,
+    error,
+    shareData,
+  };
+};
+
+interface UseSharedDeckReturn {
+  deck: SharedDeck | null;
+  isLoading: boolean;
+  error: string | null;
+  fetchSharedDeck: (token: string) => Promise<void>;
+}
+
+export const useSharedDeck = (): UseSharedDeckReturn => {
+  const [deck, setDeck] = useState<SharedDeck | null>(null);
+  const [isLoading, setIsLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+  const { message } = App.useApp();
+
+  const fetchSharedDeck = async (token: string) => {
+    setIsLoading(true);
+    setError(null);
+    setDeck(null);
+
+    try {
+      const deckData = await getSharedDeck(token);
+      setDeck(deckData);
+    } catch (err: unknown) {
+      const apiError = handleApiError(err as AxiosError);
+      let errorMessage = 'Ошибка загрузки колоды';
+
+      if (apiError.statusCode === 404) {
+        errorMessage = 'Колода не найдена или ссылка устарела';
+      } else if (apiError.statusCode === 0) {
+        errorMessage = 'Сервер недоступен. Проверьте подключение к интернету';
+      } else if (apiError.message) {
+        errorMessage = apiError.message;
+      }
+
+      setError(errorMessage);
+      message.error(errorMessage);
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  return { deck, isLoading, error, fetchSharedDeck };
+};
+
+
+
+interface UseImportSharedDeckReturn {
+  importDeck: (token: string, data?: ImportSharedDeckRequest) => Promise<DeckDetails | null>;
+  isLoading: boolean;
+  error: string | null;
+  importedDeck: DeckDetails | null;
+}
+
+export const useImportSharedDeck = (): UseImportSharedDeckReturn => {
+  const [isLoading, setIsLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+  const [importedDeck, setImportedDeck] = useState<DeckDetails | null>(null);
+  const { message } = App.useApp();
+
+  const importDeckHandler = async (token: string, data?: ImportSharedDeckRequest): Promise<DeckDetails | null> => {
+    setIsLoading(true);
+    setError(null);
+    setImportedDeck(null);
+
+    try {
+      const deckData = await importSharedDeck(token, data);
+      setImportedDeck(deckData);
+      message.success('Колода успешно импортирована');
+      return deckData;
+    } catch (err: unknown) {
+      const apiError = handleApiError(err as AxiosError);
+      let errorMessage = 'Ошибка импорта колоды';
+
+      if (apiError.statusCode === 404) {
+        errorMessage = 'Колода не найдена или ссылка устарела';
+      } else if (apiError.statusCode === 401) {
+        errorMessage = 'Не авторизован';
+      } else if (apiError.statusCode === 409) {
+        errorMessage = 'Колода с таким названием уже существует';
+      } else if (apiError.statusCode === 0) {
+        errorMessage = 'Сервер недоступен. Проверьте подключение к интернету';
+      } else if (apiError.message) {
+        errorMessage = apiError.message;
+      }
+
+      setError(errorMessage);
+      message.error(errorMessage);
+      return null;
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  return {
+    importDeck: importDeckHandler,
+    isLoading,
+    error,
+    importedDeck,
+  };
 };
