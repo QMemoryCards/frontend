@@ -1,1 +1,1 @@
-export { createDeck, deleteDeck, getDecks, updateDeck, getDeck } from './deckApi';
+export { createDeck, deleteDeck, getDecks, updateDeck, getDeck, importSharedDeck } from './deckApi';

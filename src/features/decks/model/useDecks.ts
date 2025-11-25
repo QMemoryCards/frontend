@@ -2,10 +2,20 @@ import { useState, useEffect, useCallback } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { App } from 'antd';
 import { AxiosError } from 'axios';
-import { createDeck, getDeck, updateDeck, deleteDeck, getDecks } from '@entities/deck';
+import {
+  createDeck,
+  getDeck,
+  updateDeck,
+  deleteDeck,
+  getDecks,
+  ShareDeckResponse,
+  SharedDeck,
+  ImportSharedDeckRequest,
+} from '@entities/deck';
 import type { CreateDeckRequest, UpdateDeckRequest, DeckDetails } from '@entities/deck';
 import { handleApiError } from '@shared/api';
 import { ROUTES } from '@shared/config';
+import { getSharedDeck, importSharedDeck, shareDeck } from '@entities/deck/api/deckApi.ts';
 
 interface UseDecksReturn {
   decks: DeckDetails[];
