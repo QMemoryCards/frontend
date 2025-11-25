@@ -92,11 +92,6 @@ const router = createBrowserRouter([
       </Suspense>
     ),
   },
-  // Временная заглушка для других маршрутов
-  {
-    path: '*',
-    element: <WelcomePage />,
-  },
 ]);
 
 export const AppRouter: React.FC = () => {
