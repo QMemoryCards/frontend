@@ -289,9 +289,12 @@ export const DecksPage: React.FC = () => {
     refetch();
   }, [refetch]);
 
-  const handleCreateDeck = async (data: CreateDeckRequest) => {
-    await createDeckFn(data);
-    await refetch();
+  const handleCreateDeck = async (data: CreateDeckRequest): Promise<boolean> => {
+    const success = await createDeckFn(data);
+    if (success) {
+      await refetch();
+    }
+    return success;
   };
 
   const handleDeleteDeck = (deckId: string) => {

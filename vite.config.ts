@@ -17,4 +17,21 @@ export default defineConfig({
       '@shared': path.resolve(__dirname, './src/shared'),
     },
   },
+  build: {
+    // Включаем code splitting для оптимизации размера бандла
+    rollupOptions: {
+      output: {
+        manualChunks: {
+          // Выносим vendor библиотеки в отдельные чанки
+          'react-vendor': ['react', 'react-dom', 'react-router-dom'],
+          'antd-vendor': ['antd'],
+          'styled-vendor': ['styled-components'],
+        },
+      },
+    },
+    // Увеличиваем лимит для предупреждений (у нас большая библиотека antd)
+    chunkSizeWarningLimit: 800,
+    // Используем esbuild для минификации (быстрее чем terser)
+    minify: 'esbuild',
+  },
 });

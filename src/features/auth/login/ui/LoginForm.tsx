@@ -51,11 +51,7 @@ export const LoginForm: React.FC = () => {
       return;
     }
 
-    try {
-      await login({ login: loginValue, password });
-    } catch (err) {
-      console.error('Login error:', err);
-    }
+    await login({ login: loginValue, password });
   };
 
   return (

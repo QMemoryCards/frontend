@@ -8,7 +8,7 @@ import styled from 'styled-components';
 interface CreateDeckModalProps {
   isOpen: boolean;
   onClose: () => void;
-  onSubmit: (data: CreateDeckRequest) => Promise<void>;
+  onSubmit: (data: CreateDeckRequest) => Promise<boolean>;
   isLoading: boolean;
 }
 
@@ -119,14 +119,14 @@ export const CreateDeckModal: React.FC<CreateDeckModalProps> = ({
 
     const trimmedDescription = description.trim();
 
-    try {
-      await onSubmit({
-        name: name.trim(),
-        description: trimmedDescription ? trimmedDescription : undefined,
-      });
+    const success = await onSubmit({
+      name: name.trim(),
+      description: trimmedDescription ? trimmedDescription : undefined,
+    });
+
+    // Закрываем модалку только при успехе
+    if (success) {
       onClose();
-    } catch (error) {
-      console.error('Error creating deck:', error);
     }
   };
 

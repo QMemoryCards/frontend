@@ -1,8 +1,9 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { AxiosError } from 'axios';
 import { registerUser } from '@entities/user';
 import type { RegisterRequest } from '@entities/user';
-import { setToken } from '@shared/api';
+import { setToken, handleApiError } from '@shared/api';
 import { ROUTES } from '@shared/config';
 import { validateEmail, validateLogin, validatePassword } from '@shared/lib/validation';
 
@@ -24,17 +25,23 @@ export const useRegister = (): UseRegisterReturn => {
     try {
       const emailValidation = validateEmail(data.email);
       if (!emailValidation.isValid) {
-        throw new Error(emailValidation.error);
+        const validationError = emailValidation.error || 'Неверный формат email';
+        setError(validationError);
+        return;
       }
 
       const loginValidation = validateLogin(data.login);
       if (!loginValidation.isValid) {
-        throw new Error(loginValidation.error);
+        const validationError = loginValidation.error || 'Неверный формат логина';
+        setError(validationError);
+        return;
       }
 
       const passwordValidation = validatePassword(data.password);
       if (!passwordValidation.isValid) {
-        throw new Error(passwordValidation.error);
+        const validationError = passwordValidation.error || 'Неверный формат пароля';
+        setError(validationError);
+        return;
       }
 
       const response = await registerUser(data);
@@ -43,17 +50,26 @@ export const useRegister = (): UseRegisterReturn => {
 
       navigate(ROUTES.LOGIN);
     } catch (err: unknown) {
-      let errorMessage =
-        (err as { response?: { data?: { code?: string } } }).response?.data?.code ||
-        (err as Error).message ||
-        'Ошибка регистрации';
-      if (errorMessage == "email_conflict") {
-        errorMessage = "Данный email уже занят"
-      } else if (errorMessage == "login_conflict") {
-        errorMessage = "Данный login уже занят"
+      const apiError = handleApiError(err as AxiosError);
+
+      // Формируем понятное сообщение об ошибке
+      let errorMessage = 'Ошибка регистрации';
+
+      if (apiError.code === 'email_conflict') {
+        errorMessage = 'Данный email уже занят';
+      } else if (apiError.code === 'login_conflict') {
+        errorMessage = 'Данный логин уже занят';
+      } else if (apiError.statusCode === 400) {
+        errorMessage = apiError.message || 'Неверные данные для регистрации';
+      } else if (apiError.statusCode === 0) {
+        errorMessage = 'Сервер недоступен. Проверьте подключение к интернету';
+      } else if (apiError.message) {
+        errorMessage = apiError.message;
       }
+
       setError(errorMessage);
-      throw err;
+
+      // НЕ бросаем ошибку дальше, чтобы избежать необработанного исключения
     } finally {
       setIsLoading(false);
     }

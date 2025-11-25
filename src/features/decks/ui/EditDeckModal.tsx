@@ -9,7 +9,7 @@ interface EditDeckModalProps {
   isOpen: boolean;
   deck: DeckDetails | null;
   onClose: () => void;
-  onSubmit: (deckId: string, data: UpdateDeckRequest) => Promise<void>;
+  onSubmit: (deckId: string, data: UpdateDeckRequest) => Promise<boolean>;
   isLoading: boolean;
 }
 
@@ -123,14 +123,14 @@ export const EditDeckModal: React.FC<EditDeckModalProps> = ({
 
     const trimmedDescription = description.trim();
 
-    try {
-      await onSubmit(deck.id, {
-        name: name.trim(),
-        description: trimmedDescription ? trimmedDescription : undefined,
-      });
+    const success = await onSubmit(deck.id, {
+      name: name.trim(),
+      description: trimmedDescription ? trimmedDescription : undefined,
+    });
+
+    // Закрываем модалку только при успехе
+    if (success) {
       onClose();
-    } catch (error) {
-      console.error('Error updating deck:', error);
     }
   };
 
