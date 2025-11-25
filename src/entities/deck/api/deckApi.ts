@@ -6,6 +6,8 @@ import type {
   UpdateDeckRequest,
   UpdateDeckResponse,
   DeckDetails,
+  ShareDeckResponse,
+  SharedDeck, ImportSharedDeckRequest,
 } from '../model/types';
 
 export const createDeck = async (data: CreateDeckRequest): Promise<CreateDeckResponce> => {
@@ -34,5 +36,20 @@ export const deleteDeck = async (deckId: string): Promise<void> => {
 
 export const getDeck = async (deckId: string): Promise<DeckDetails> => {
   const response = await apiClient.get<DeckDetails>(`/decks/${deckId}`);
+  return response.data;
+};
+
+export const shareDeck = async (deckId: string): Promise<ShareDeckResponse> => {
+  const response = await apiClient.post<ShareDeckResponse>(`decks/${deckId}/share`);
+  return response.data
+}
+
+export const getSharedDeck = async (token: string): Promise<SharedDeck> => {
+  const response = await apiClient.get<SharedDeck>(`share/${token}`);
+  return response.data;
+};
+
+export const importSharedDeck = async (token: string, data?: ImportSharedDeckRequest): Promise<DeckDetails> => {
+  const response = await apiClient.post<DeckDetails>(`share/${token}/import`, data);
   return response.data;
 };
