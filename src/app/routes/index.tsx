@@ -84,6 +84,14 @@ const router = createBrowserRouter([
       </Suspense>
     ),
   },
+  {
+    path: ROUTES.SHARE,
+    element: (
+      <Suspense fallback={<PageLoader />}>
+        <SharedDeckPage />
+      </Suspense>
+    ),
+  },
   // Временная заглушка для других маршрутов
   {
     path: '*',
