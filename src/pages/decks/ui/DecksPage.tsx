@@ -2,17 +2,20 @@ import React, { useState, useMemo, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import styled from 'styled-components';
 import { App } from 'antd';
-import { PlusOutlined, SearchOutlined, UserOutlined } from '@ant-design/icons';
+import { PlusOutlined, SearchOutlined } from '@ant-design/icons';
 import { DeckCard } from '@entities/deck';
 import type { DeckDetails, CreateDeckRequest } from '@entities/deck';
 import { useDecks, useCreateDeck, useDeleteDeck } from '@features/decks';
 import { CreateDeckModal } from '@features/decks';
 import { Spinner } from '@shared/ui';
-import { ROUTES } from '@shared/config';
+import { Header } from '@widgets/Header';
 
 const Container = styled.div`
   min-height: 100vh;
   background: #f0f2f5;
+`;
+
+const PageContent = styled.div`
   padding: 24px;
 
   @media (max-width: 768px) {
@@ -20,7 +23,7 @@ const Container = styled.div`
   }
 `;
 
-const Header = styled.div`
+const PageHeader = styled.div`
   max-width: 1200px;
   margin: 0 auto 32px;
 `;
@@ -145,30 +148,23 @@ const CreateButton = styled.button`
     transform: translateY(0);
   }
 
+  &:disabled {
+    background-color: #d9d9d9;
+    color: #8c8c8c;
+    cursor: not-allowed;
+    transform: none;
+    box-shadow: none;
+
+    &:hover {
+      background-color: #d9d9d9;
+      transform: none;
+      box-shadow: none;
+    }
+  }
+
   @media (max-width: 768px) {
     width: 100%;
     justify-content: center;
-  }
-`;
-
-const ProfileButton = styled.button`
-  width: 44px;
-  height: 44px;
-  border-radius: 50%;
-  border: 2px solid #d9d9d9;
-  background: #ffffff;
-  color: #595959;
-  cursor: pointer;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-size: 18px;
-  transition: all 0.3s;
-
-  &:hover {
-    border-color: #1890ff;
-    color: #1890ff;
-    transform: scale(1.05);
   }
 `;
 
@@ -185,6 +181,12 @@ const DecksGrid = styled.div`
   @media (max-width: 768px) {
     grid-template-columns: 1fr;
   }
+`;
+
+const DeckCardWrapper = styled.div<{ $isVisible: boolean }>`
+  opacity: ${props => (props.$isVisible ? 1 : 0)};
+  transform: translateY(${props => (props.$isVisible ? '0' : '20px')});
+  transition: opacity 0.5s ease, transform 0.5s ease;
 `;
 
 const LoadingContainer = styled.div`
@@ -256,6 +258,7 @@ export const DecksPage: React.FC = () => {
   const [isCreateModalOpen, setIsCreateModalOpen] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');
   const [filterStatus, setFilterStatus] = useState<FilterStatus>('all');
+  const [visibleCards, setVisibleCards] = useState<Set<string>>(new Set());
 
   const { decks, isLoading, totalElements, refetch } = useDecks();
   const { createDeck: createDeckFn, isLoading: isCreating } = useCreateDeck();
@@ -284,6 +287,32 @@ export const DecksPage: React.FC = () => {
 
     return filtered;
   }, [decks, searchQuery, filterStatus]);
+
+  useEffect(() => {
+    const observer = new IntersectionObserver(
+      entries => {
+        entries.forEach(entry => {
+          if (entry.isIntersecting) {
+            const deckId = entry.target.getAttribute('data-deck-id');
+            if (deckId) {
+              setVisibleCards(prev => new Set(prev).add(deckId));
+            }
+          }
+        });
+      },
+      {
+        threshold: 0.1,
+        rootMargin: '50px',
+      }
+    );
+
+    const cards = document.querySelectorAll('[data-deck-id]');
+    cards.forEach(card => observer.observe(card));
+
+    return () => {
+      cards.forEach(card => observer.unobserve(card));
+    };
+  }, [filteredDecks]);
 
   useEffect(() => {
     refetch();
@@ -321,122 +350,148 @@ export const DecksPage: React.FC = () => {
 
   if (isLoading) {
     return (
-      <Container>
-        <LoadingContainer>
-          <Spinner size={48} />
-        </LoadingContainer>
-      </Container>
+      <>
+        <Header />
+        <Container>
+          <PageContent>
+            <LoadingContainer>
+              <Spinner size={48} />
+            </LoadingContainer>
+          </PageContent>
+        </Container>
+      </>
     );
   }
 
   return (
-    <Container>
-      <Header>
-        <TitleRow>
-          <Title>Мои колоды</Title>
-          <ProfileButton onClick={() => navigate(ROUTES.PROFILE)} aria-label="Профиль">
-            <UserOutlined />
-          </ProfileButton>
-        </TitleRow>
+    <>
+      <Header />
+      <Container>
+        <PageContent>
+          <PageHeader>
+            <TitleRow>
+              <Title>Мои колоды</Title>
+            </TitleRow>
 
-        {decks.length > 0 && (
-          <Stats>
-            <StatItem>
-              <StatLabel>Всего колод</StatLabel>
-              <StatValue>{totalElements}</StatValue>
-            </StatItem>
-            <StatItem>
-              <StatLabel>Изучено</StatLabel>
-              <StatValue>{decks.filter(d => d.learnedPercent === 100).length}</StatValue>
-            </StatItem>
-            <StatItem>
-              <StatLabel>В процессе</StatLabel>
-              <StatValue>
-                {decks.filter(d => d.learnedPercent > 0 && d.learnedPercent < 100).length}
-              </StatValue>
-            </StatItem>
-          </Stats>
-        )}
-
-        <Controls>
-          <SearchContainer>
-            <SearchIcon />
-            <SearchInput
-              type="text"
-              placeholder="Поиск по названию или описанию..."
-              value={searchQuery}
-              onChange={e => setSearchQuery(e.target.value)}
-            />
-          </SearchContainer>
-
-          <FilterContainer>
-            <FilterButton $active={filterStatus === 'all'} onClick={() => setFilterStatus('all')}>
-              Все
-            </FilterButton>
-            <FilterButton $active={filterStatus === 'new'} onClick={() => setFilterStatus('new')}>
-              Новые
-            </FilterButton>
-            <FilterButton
-              $active={filterStatus === 'learning'}
-              onClick={() => setFilterStatus('learning')}
-            >
-              В изучении
-            </FilterButton>
-            <FilterButton
-              $active={filterStatus === 'learned'}
-              onClick={() => setFilterStatus('learned')}
-            >
-              Изучено
-            </FilterButton>
-          </FilterContainer>
-
-          <CreateButton onClick={() => setIsCreateModalOpen(true)}>
-            <PlusOutlined />
-            Создать колоду
-          </CreateButton>
-        </Controls>
-      </Header>
-
-      <Content>
-        {filteredDecks.length === 0 ? (
-          <EmptyState>
-            <EmptyIcon>📚</EmptyIcon>
-            <EmptyTitle>
-              {decks.length === 0 ? 'У вас пока нет колод' : 'Ничего не найдено'}
-            </EmptyTitle>
-            <EmptyDescription>
-              {decks.length === 0
-                ? 'Создайте свою первую колоду, чтобы начать изучение'
-                : 'Попробуйте изменить параметры поиска или фильтры'}
-            </EmptyDescription>
-            {decks.length === 0 && (
-              <CreateButton onClick={() => setIsCreateModalOpen(true)}>
-                <PlusOutlined />
-                Создать первую колоду
-              </CreateButton>
+            {decks.length > 0 && (
+              <Stats>
+                <StatItem>
+                  <StatLabel>Всего колод</StatLabel>
+                  <StatValue>{totalElements}</StatValue>
+                </StatItem>
+                <StatItem>
+                  <StatLabel>Изучено</StatLabel>
+                  <StatValue>{decks.filter(d => d.learnedPercent === 100).length}</StatValue>
+                </StatItem>
+                <StatItem>
+                  <StatLabel>В процессе</StatLabel>
+                  <StatValue>
+                    {decks.filter(d => d.learnedPercent > 0 && d.learnedPercent < 100).length}
+                  </StatValue>
+                </StatItem>
+              </Stats>
             )}
-          </EmptyState>
-        ) : (
-          <DecksGrid>
-            {filteredDecks.map(deck => (
-              <DeckCard
-                key={deck.id}
-                deck={deck}
-                onEdit={handleEditDeck}
-                onDelete={handleDeleteDeck}
-                onStudy={handleStudyDeck}
-              />
-            ))}
-          </DecksGrid>
-        )}
-      </Content>
 
-      <CreateDeckModal
-        isOpen={isCreateModalOpen}
-        onClose={() => setIsCreateModalOpen(false)}
-        onSubmit={handleCreateDeck}
-        isLoading={isCreating}
-      />
-    </Container>
+            <Controls>
+              <SearchContainer>
+                <SearchIcon />
+                <SearchInput
+                  type="text"
+                  placeholder="Поиск по названию или описанию..."
+                  value={searchQuery}
+                  onChange={e => setSearchQuery(e.target.value)}
+                />
+              </SearchContainer>
+
+              <FilterContainer>
+                <FilterButton
+                  $active={filterStatus === 'all'}
+                  onClick={() => setFilterStatus('all')}
+                >
+                  Все
+                </FilterButton>
+                <FilterButton
+                  $active={filterStatus === 'new'}
+                  onClick={() => setFilterStatus('new')}
+                >
+                  Новые
+                </FilterButton>
+                <FilterButton
+                  $active={filterStatus === 'learning'}
+                  onClick={() => setFilterStatus('learning')}
+                >
+                  В изучении
+                </FilterButton>
+                <FilterButton
+                  $active={filterStatus === 'learned'}
+                  onClick={() => setFilterStatus('learned')}
+                >
+                  Изучено
+                </FilterButton>
+              </FilterContainer>
+
+              <CreateButton
+                onClick={() => setIsCreateModalOpen(true)}
+                disabled={totalElements >= 30}
+                title={totalElements >= 30 ? 'Достигнут лимит в 30 колод' : ''}
+              >
+                <PlusOutlined />
+                Создать колоду
+              </CreateButton>
+            </Controls>
+          </PageHeader>
+
+          <Content>
+            {filteredDecks.length === 0 ? (
+              <EmptyState>
+                <EmptyIcon>📚</EmptyIcon>
+                <EmptyTitle>
+                  {decks.length === 0 ? 'У вас пока нет колод' : 'Ничего не найдено'}
+                </EmptyTitle>
+                <EmptyDescription>
+                  {decks.length === 0
+                    ? 'Создайте свою первую колоду, чтобы начать изучение'
+                    : 'Попробуйте изменить параметры поиска или фильтры'}
+                </EmptyDescription>
+                {decks.length === 0 && (
+                  <CreateButton
+                    onClick={() => setIsCreateModalOpen(true)}
+                    disabled={totalElements >= 30}
+                    title={totalElements >= 30 ? 'Достигнут лимит в 30 колод' : ''}
+                  >
+                    <PlusOutlined />
+                    Создать первую колоду
+                  </CreateButton>
+                )}
+              </EmptyState>
+            ) : (
+              <DecksGrid>
+                {filteredDecks.map(deck => (
+                  <DeckCardWrapper
+                    key={deck.id}
+                    data-deck-id={deck.id}
+                    $isVisible={visibleCards.has(deck.id)}
+                  >
+                    <DeckCard
+                      deck={deck}
+                      onEdit={handleEditDeck}
+                      onDelete={handleDeleteDeck}
+                      onStudy={handleStudyDeck}
+                    />
+                  </DeckCardWrapper>
+                ))}
+              </DecksGrid>
+            )}
+          </Content>
+
+          <CreateDeckModal
+            isOpen={isCreateModalOpen}
+            onClose={() => setIsCreateModalOpen(false)}
+            onSubmit={handleCreateDeck}
+            isLoading={isCreating}
+          />
+        </PageContent>
+      </Container>
+    </>
   );
 };

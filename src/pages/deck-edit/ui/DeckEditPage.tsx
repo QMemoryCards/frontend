@@ -19,10 +19,14 @@ import { validateDeckName, validateDeckDescription } from '@shared/lib/validatio
 import { VALIDATION } from '@shared/config';
 import { Spinner } from '@shared/ui';
 import { useShareDeck } from '@features/decks/model/useDecks.ts';
+import { Header as AppHeader } from '@widgets/Header';
 
 const Container = styled.div`
   min-height: 100vh;
   background: #f0f2f5;
+`;
+
+const PageContent = styled.div`
   padding: 24px;
 
   @media (max-width: 768px) {
@@ -35,7 +39,7 @@ const Content = styled.div`
   margin: 0 auto;
 `;
 
-const Header = styled.div`
+const PageHeader = styled.div`
   display: flex;
   align-items: center;
   gap: 16px;
@@ -389,152 +393,162 @@ export const DeckEditPage: React.FC = () => {
 
   if (deckLoading && !deck) {
     return (
-      <Container>
-        <LoadingContainer>
-          <Spinner />
-        </LoadingContainer>
-      </Container>
+      <>
+        <AppHeader />
+        <Container>
+          <PageContent>
+            <LoadingContainer>
+              <Spinner />
+            </LoadingContainer>
+          </PageContent>
+        </Container>
+      </>
     );
   }
 
   return (
-    <Container>
-      <Content>
-        <Header>
-          <BackButton onClick={() => navigate('/decks')}>
-            <ArrowLeftOutlined />
-            Назад
-          </BackButton>
-          <Title>Редактирование колоды</Title>
-          <ActionButtons>
-            <ShareButton onClick={handleGenerateShareLink} disabled={isGeneratingShare || !id}>
-              <ShareAltOutlined />
-              {isGeneratingShare ? 'Генерация...' : 'Поделиться'}
-            </ShareButton>
-            <SaveButton onClick={handleSave} disabled={!isFormValid || updateLoading}>
-              <SaveOutlined />
-              Сохранить
-            </SaveButton>
-          </ActionButtons>
-        </Header>
+    <>
+      <AppHeader />
+      <Container>
+        <PageContent>
+          <Content>
+            <PageHeader>
+              <BackButton onClick={() => navigate('/decks')}>
+                <ArrowLeftOutlined />
+                Назад
+              </BackButton>
+              <Title>Редактирование колоды</Title>
+              <ActionButtons>
+                <ShareButton onClick={handleGenerateShareLink} disabled={isGeneratingShare || !id}>
+                  <ShareAltOutlined />
+                  {isGeneratingShare ? 'Генерация...' : 'Поделиться'}
+                </ShareButton>
+                <SaveButton onClick={handleSave} disabled={!isFormValid || updateLoading}>
+                  <SaveOutlined />
+                  Сохранить
+                </SaveButton>
+              </ActionButtons>
+            </PageHeader>
 
-        <DeckInfoSection>
-          <FieldContainer>
-            <Label>Название</Label>
-            <Input
-              value={name}
-              onChange={e => setName(e.target.value)}
-              placeholder="Введите название колоды"
-              disabled={updateLoading}
-            />
-            {nameError ? (
-              <ErrorText>{nameError}</ErrorText>
-            ) : (
-              <CharCounter $isError={name.length > VALIDATION.DECK.NAME_MAX}>
-                {name.length}/{VALIDATION.DECK.NAME_MAX}
-              </CharCounter>
-            )}
-          </FieldContainer>
-
-          <FieldContainer>
-            <Label>Описание</Label>
-            <Input
-              value={description}
-              onChange={e => setDescription(e.target.value)}
-              placeholder="Введите описание (необязательно)"
-              disabled={updateLoading}
-            />
-            {descriptionError ? (
-              <ErrorText>{descriptionError}</ErrorText>
-            ) : (
-              <CharCounter $isError={description.length > VALIDATION.DECK.DESCRIPTION_MAX}>
-                {description.length}/{VALIDATION.DECK.DESCRIPTION_MAX}
-              </CharCounter>
-            )}
-          </FieldContainer>
-        </DeckInfoSection>
-
-        <CardsSection>
-          <SectionHeader>
-            <SectionTitle>
-              Карточки ({cards.length}/{VALIDATION.CARD.MAX_CARDS})
-            </SectionTitle>
-            <AddCardButton
-              onClick={handleOpenCreateModal}
-              disabled={cards.length >= VALIDATION.CARD.MAX_CARDS}
-            >
-              <PlusOutlined />
-              Добавить карточку
-            </AddCardButton>
-          </SectionHeader>
-
-          {cardsLoading ? (
-            <LoadingContainer>
-              <Spinner />
-            </LoadingContainer>
-          ) : cards.length === 0 ? (
-            <EmptyState>
-              Карточек пока нет. Создайте первую карточку для начала обучения.
-            </EmptyState>
-          ) : (
-            <CardsList>
-              {cards.map(card => (
-                <CardItem
-                  key={card.id}
-                  card={card}
-                  onEdit={handleEditCard}
-                  onDelete={handleDeleteCard}
+            <DeckInfoSection>
+              <FieldContainer>
+                <Label>Название</Label>
+                <Input
+                  value={name}
+                  onChange={e => setName(e.target.value)}
+                  placeholder="Введите название колоды"
+                  disabled={updateLoading}
                 />
-              ))}
-            </CardsList>
-          )}
-        </CardsSection>
-      </Content>
+                {nameError ? (
+                  <ErrorText>{nameError}</ErrorText>
+                ) : (
+                  <CharCounter $isError={name.length > VALIDATION.DECK.NAME_MAX}>
+                    {name.length}/{VALIDATION.DECK.NAME_MAX}
+                  </CharCounter>
+                )}
+              </FieldContainer>
 
-      <CreateCardModal
-        isOpen={isCreateModalOpen}
-        onClose={() => setIsCreateModalOpen(false)}
-        onSubmit={handleCreateCard}
-        isLoading={createLoading}
-      />
+              <FieldContainer>
+                <Label>Описание</Label>
+                <Input
+                  value={description}
+                  onChange={e => setDescription(e.target.value)}
+                  placeholder="Введите описание (необязательно)"
+                  disabled={updateLoading}
+                />
+                {descriptionError ? (
+                  <ErrorText>{descriptionError}</ErrorText>
+                ) : (
+                  <CharCounter $isError={description.length > VALIDATION.DECK.DESCRIPTION_MAX}>
+                    {description.length}/{VALIDATION.DECK.DESCRIPTION_MAX}
+                  </CharCounter>
+                )}
+              </FieldContainer>
+            </DeckInfoSection>
 
-      <EditCardModal
-        isOpen={isEditModalOpen}
-        card={selectedCard}
-        onClose={() => {
-          setIsEditModalOpen(false);
-          setSelectedCard(null);
-        }}
-        onSubmit={handleUpdateCard}
-        isLoading={updateCardLoading}
-      />
+            <CardsSection>
+              <SectionHeader>
+                <SectionTitle>
+                  Карточки ({cards.length}/{VALIDATION.CARD.MAX_CARDS})
+                </SectionTitle>
+                <AddCardButton
+                  onClick={handleOpenCreateModal}
+                  disabled={cards.length >= VALIDATION.CARD.MAX_CARDS}
+                >
+                  <PlusOutlined />
+                  Добавить карточку
+                </AddCardButton>
+              </SectionHeader>
 
-      <Modal
-        title="Поделиться колодой"
-        open={isShareModalOpen}
-        onCancel={() => setIsShareModalOpen(false)}
-        footer={[
-          <Button key="close" onClick={() => setIsShareModalOpen(false)}>
-            Закрыть
-          </Button>,
-          <CopyButton
-            key="copy"
-            type="primary"
-            icon={<CopyOutlined />}
-            onClick={handleCopyToClipboard}
+              {cardsLoading ? (
+                <LoadingContainer>
+                  <Spinner />
+                </LoadingContainer>
+              ) : cards.length === 0 ? (
+                <EmptyState>
+                  Карточек пока нет. Создайте первую карточку для начала обучения.
+                </EmptyState>
+              ) : (
+                <CardsList>
+                  {cards.map(card => (
+                    <CardItem
+                      key={card.id}
+                      card={card}
+                      onEdit={handleEditCard}
+                      onDelete={handleDeleteCard}
+                    />
+                  ))}
+                </CardsList>
+              )}
+            </CardsSection>
+          </Content>
+
+          <CreateCardModal
+            isOpen={isCreateModalOpen}
+            onClose={() => setIsCreateModalOpen(false)}
+            onSubmit={handleCreateCard}
+            isLoading={createLoading}
+          />
+
+          <EditCardModal
+            isOpen={isEditModalOpen}
+            card={selectedCard}
+            onClose={() => {
+              setIsEditModalOpen(false);
+              setSelectedCard(null);
+            }}
+            onSubmit={handleUpdateCard}
+            isLoading={updateCardLoading}
+          />
+
+          <Modal
+            title="Поделиться колодой"
+            open={isShareModalOpen}
+            onCancel={() => setIsShareModalOpen(false)}
+            footer={[
+              <Button key="close" onClick={() => setIsShareModalOpen(false)}>
+                Закрыть
+              </Button>,
+              <CopyButton
+                key="copy"
+                type="primary"
+                icon={<CopyOutlined />}
+                onClick={handleCopyToClipboard}
+              >
+                Копировать ссылку
+              </CopyButton>,
+            ]}
           >
-            Копировать ссылку
-          </CopyButton>,
-        ]}
-      >
-        <ShareModalContainer>
-          <p>Ссылка для общего доступа к колоде:</p>
-          <ShareLinkInput value={shareUrl} readOnly placeholder="Ссылка для общего доступа" />
-          <p style={{ fontSize: '12px', color: '#8c8c8c', margin: 0 }}>
-            Любой, у кого есть эта ссылка, сможет просмотреть вашу колоду
-          </p>
-        </ShareModalContainer>
-      </Modal>
-    </Container>
+            <ShareModalContainer>
+              <p>Ссылка для общего доступа к колоде:</p>
+              <ShareLinkInput value={shareUrl} readOnly placeholder="Ссылка для общего доступа" />
+              <p style={{ fontSize: '12px', color: '#8c8c8c', margin: 0 }}>
+                Любой, у кого есть эта ссылка, сможет просмотреть вашу колоду
+              </p>
+            </ShareModalContainer>
+          </Modal>
+        </PageContent>
+      </Container>
+    </>
   );
 };

@@ -15,10 +15,14 @@ import { logoutUser } from '@entities/user';
 import { validateEmail, validateLogin, validatePassword } from '@shared/lib/validation';
 import { VALIDATION } from '@shared/config';
 import { Spinner } from '@shared/ui';
+import { Header as AppHeader } from '@widgets/Header';
 
 const Container = styled.div`
   min-height: 100vh;
   background: #f0f2f5;
+`;
+
+const PageContent = styled.div`
   padding: 24px;
 
   @media (max-width: 768px) {
@@ -31,7 +35,7 @@ const Content = styled.div`
   margin: 0 auto;
 `;
 
-const Header = styled.div`
+const PageHeader = styled.div`
   display: flex;
   align-items: center;
   gap: 16px;
@@ -260,11 +264,23 @@ export const ProfilePage: React.FC = () => {
       return;
     }
 
-    const updatedUser = await updateUser({ email, login });
-    if (updatedUser) {
-      setUser(updatedUser);
+    const result = await updateUser({ email, login });
+    if (result.user) {
+      setUser(result.user);
       messageApi.success('Данные успешно обновлены');
       setEditMode(false);
+      setEmailError('');
+      setLoginError('');
+    } else if (result.statusCode === 409) {
+      if (result.code === 'email_conflict') {
+        setEmailError('Данный email уже занят');
+      } else if (result.code === 'login_conflict') {
+        setLoginError('Данный логин уже занят');
+      } else {
+        messageApi.error('Email или логин уже используются');
+      }
+    } else {
+      messageApi.error(result.message || 'Ошибка при обновлении данных');
     }
   };
 
@@ -327,11 +343,16 @@ export const ProfilePage: React.FC = () => {
 
   if (userLoading && !user) {
     return (
-      <Container>
-        <LoadingContainer>
-          <Spinner />
-        </LoadingContainer>
-      </Container>
+      <>
+        <AppHeader />
+        <Container>
+          <PageContent>
+            <LoadingContainer>
+              <Spinner />
+            </LoadingContainer>
+          </PageContent>
+        </Container>
+      </>
     );
   }
 
@@ -344,171 +365,176 @@ export const ProfilePage: React.FC = () => {
     !newPasswordError;
 
   return (
-    <Container>
-      <Content>
-        <Header>
-          <BackButton onClick={() => navigate('/decks')}>
-            <ArrowLeftOutlined />
-            Назад
-          </BackButton>
-          <Title>Управление аккаунтом</Title>
-        </Header>
+    <>
+      <AppHeader />
+      <Container>
+        <PageContent>
+          <Content>
+            <PageHeader>
+              <BackButton onClick={() => navigate('/decks')}>
+                <ArrowLeftOutlined />
+                Назад
+              </BackButton>
+              <Title>Управление аккаунтом</Title>
+            </PageHeader>
 
-        <Section>
-          <SectionTitle>Личные данные</SectionTitle>
+            <Section>
+              <SectionTitle>Личные данные</SectionTitle>
 
-          {!editMode && !passwordMode ? (
-            <>
-              <FieldContainer>
-                <Label>Email</Label>
-                <ReadOnlyValue>{user?.email}</ReadOnlyValue>
-              </FieldContainer>
+              {!editMode && !passwordMode ? (
+                <>
+                  <FieldContainer>
+                    <Label>Email</Label>
+                    <ReadOnlyValue>{user?.email}</ReadOnlyValue>
+                  </FieldContainer>
 
-              <FieldContainer>
-                <Label>Логин</Label>
-                <ReadOnlyValue>{user?.login}</ReadOnlyValue>
-              </FieldContainer>
+                  <FieldContainer>
+                    <Label>Логин</Label>
+                    <ReadOnlyValue>{user?.login}</ReadOnlyValue>
+                  </FieldContainer>
 
-              <FieldContainer>
-                <Label>Пароль</Label>
-                <ReadOnlyValue>••••••••</ReadOnlyValue>
-              </FieldContainer>
+                  <FieldContainer>
+                    <Label>Пароль</Label>
+                    <ReadOnlyValue>••••••••</ReadOnlyValue>
+                  </FieldContainer>
 
+                  <ButtonGroup>
+                    <SecondaryButton onClick={() => setEditMode(true)}>
+                      <EditOutlined />
+                      Изменить данные
+                    </SecondaryButton>
+                    <SecondaryButton onClick={() => setPasswordMode(true)}>
+                      <KeyOutlined />
+                      Изменить пароль
+                    </SecondaryButton>
+                  </ButtonGroup>
+                </>
+              ) : editMode ? (
+                <>
+                  <FieldContainer>
+                    <Label>Email</Label>
+                    <Input
+                      type="email"
+                      value={email}
+                      onChange={e => setEmail(e.target.value)}
+                      placeholder="example@email.com"
+                      disabled={updateLoading}
+                    />
+                    {emailError ? (
+                      <ErrorText>{emailError}</ErrorText>
+                    ) : (
+                      <CharCounter $isError={email.length > VALIDATION.USER.EMAIL_MAX}>
+                        {email.length}/{VALIDATION.USER.EMAIL_MAX}
+                      </CharCounter>
+                    )}
+                  </FieldContainer>
+
+                  <FieldContainer>
+                    <Label>Логин</Label>
+                    <Input
+                      value={login}
+                      onChange={e => setLogin(e.target.value)}
+                      placeholder="username"
+                      disabled={updateLoading}
+                    />
+                    {loginError ? (
+                      <ErrorText>{loginError}</ErrorText>
+                    ) : (
+                      <CharCounter $isError={login.length > VALIDATION.USER.LOGIN_MAX}>
+                        {login.length}/{VALIDATION.USER.LOGIN_MAX}
+                      </CharCounter>
+                    )}
+                  </FieldContainer>
+
+                  <ButtonGroup>
+                    <PrimaryButton
+                      onClick={handleSaveProfile}
+                      disabled={!isProfileFormValid || updateLoading}
+                    >
+                      Сохранить изменения
+                    </PrimaryButton>
+                    <SecondaryButton
+                      onClick={() => {
+                        setEditMode(false);
+                        setEmail(user?.email || '');
+                        setLogin(user?.login || '');
+                      }}
+                      disabled={updateLoading}
+                    >
+                      Отмена
+                    </SecondaryButton>
+                  </ButtonGroup>
+                </>
+              ) : (
+                <>
+                  <FieldContainer>
+                    <Label>Текущий пароль</Label>
+                    <Input
+                      type="password"
+                      value={currentPassword}
+                      onChange={e => setCurrentPassword(e.target.value)}
+                      placeholder="Введите текущий пароль"
+                      disabled={passwordLoading}
+                    />
+                    {currentPasswordError && <ErrorText>{currentPasswordError}</ErrorText>}
+                  </FieldContainer>
+
+                  <FieldContainer>
+                    <Label>Новый пароль</Label>
+                    <Input
+                      type="password"
+                      value={newPassword}
+                      onChange={e => setNewPassword(e.target.value)}
+                      placeholder="Введите новый пароль"
+                      disabled={passwordLoading}
+                    />
+                    {newPasswordError ? (
+                      <ErrorText>{newPasswordError}</ErrorText>
+                    ) : (
+                      <CharCounter $isError={newPassword.length > VALIDATION.USER.PASSWORD_MAX}>
+                        {newPassword.length}/{VALIDATION.USER.PASSWORD_MAX}
+                      </CharCounter>
+                    )}
+                  </FieldContainer>
+
+                  <ButtonGroup>
+                    <PrimaryButton
+                      onClick={handleChangePassword}
+                      disabled={!isPasswordFormValid || passwordLoading}
+                    >
+                      Изменить пароль
+                    </PrimaryButton>
+                    <SecondaryButton
+                      onClick={() => {
+                        setPasswordMode(false);
+                        setCurrentPassword('');
+                        setNewPassword('');
+                      }}
+                      disabled={passwordLoading}
+                    >
+                      Отмена
+                    </SecondaryButton>
+                  </ButtonGroup>
+                </>
+              )}
+            </Section>
+
+            <Section>
+              <SectionTitle>Управление аккаунтом</SectionTitle>
               <ButtonGroup>
-                <SecondaryButton onClick={() => setEditMode(true)}>
-                  <EditOutlined />
-                  Изменить данные
+                <SecondaryButton onClick={handleLogout} disabled={deleteLoading}>
+                  <LogoutOutlined />
+                  Выйти из аккаунта
                 </SecondaryButton>
-                <SecondaryButton onClick={() => setPasswordMode(true)}>
-                  <KeyOutlined />
-                  Изменить пароль
-                </SecondaryButton>
+                <DangerButton onClick={handleDeleteAccount} disabled={deleteLoading}>
+                  <DeleteOutlined />
+                  Удалить аккаунт
+                </DangerButton>
               </ButtonGroup>
-            </>
-          ) : editMode ? (
-            <>
-              <FieldContainer>
-                <Label>Email</Label>
-                <Input
-                  type="email"
-                  value={email}
-                  onChange={e => setEmail(e.target.value)}
-                  placeholder="example@email.com"
-                  disabled={updateLoading}
-                />
-                {emailError ? (
-                  <ErrorText>{emailError}</ErrorText>
-                ) : (
-                  <CharCounter $isError={email.length > VALIDATION.USER.EMAIL_MAX}>
-                    {email.length}/{VALIDATION.USER.EMAIL_MAX}
-                  </CharCounter>
-                )}
-              </FieldContainer>
-
-              <FieldContainer>
-                <Label>Логин</Label>
-                <Input
-                  value={login}
-                  onChange={e => setLogin(e.target.value)}
-                  placeholder="username"
-                  disabled={updateLoading}
-                />
-                {loginError ? (
-                  <ErrorText>{loginError}</ErrorText>
-                ) : (
-                  <CharCounter $isError={login.length > VALIDATION.USER.LOGIN_MAX}>
-                    {login.length}/{VALIDATION.USER.LOGIN_MAX}
-                  </CharCounter>
-                )}
-              </FieldContainer>
-
-              <ButtonGroup>
-                <PrimaryButton
-                  onClick={handleSaveProfile}
-                  disabled={!isProfileFormValid || updateLoading}
-                >
-                  Сохранить изменения
-                </PrimaryButton>
-                <SecondaryButton
-                  onClick={() => {
-                    setEditMode(false);
-                    setEmail(user?.email || '');
-                    setLogin(user?.login || '');
-                  }}
-                  disabled={updateLoading}
-                >
-                  Отмена
-                </SecondaryButton>
-              </ButtonGroup>
-            </>
-          ) : (
-            <>
-              <FieldContainer>
-                <Label>Текущий пароль</Label>
-                <Input
-                  type="password"
-                  value={currentPassword}
-                  onChange={e => setCurrentPassword(e.target.value)}
-                  placeholder="Введите текущий пароль"
-                  disabled={passwordLoading}
-                />
-                {currentPasswordError && <ErrorText>{currentPasswordError}</ErrorText>}
-              </FieldContainer>
-
-              <FieldContainer>
-                <Label>Новый пароль</Label>
-                <Input
-                  type="password"
-                  value={newPassword}
-                  onChange={e => setNewPassword(e.target.value)}
-                  placeholder="Введите новый пароль"
-                  disabled={passwordLoading}
-                />
-                {newPasswordError ? (
-                  <ErrorText>{newPasswordError}</ErrorText>
-                ) : (
-                  <CharCounter $isError={newPassword.length > VALIDATION.USER.PASSWORD_MAX}>
-                    {newPassword.length}/{VALIDATION.USER.PASSWORD_MAX}
-                  </CharCounter>
-                )}
-              </FieldContainer>
-
-              <ButtonGroup>
-                <PrimaryButton
-                  onClick={handleChangePassword}
-                  disabled={!isPasswordFormValid || passwordLoading}
-                >
-                  Изменить пароль
-                </PrimaryButton>
-                <SecondaryButton
-                  onClick={() => {
-                    setPasswordMode(false);
-                    setCurrentPassword('');
-                    setNewPassword('');
-                  }}
-                  disabled={passwordLoading}
-                >
-                  Отмена
-                </SecondaryButton>
-              </ButtonGroup>
-            </>
-          )}
-        </Section>
-
-        <Section>
-          <SectionTitle>Управление аккаунтом</SectionTitle>
-          <ButtonGroup>
-            <SecondaryButton onClick={handleLogout}>
-              <LogoutOutlined />
-              Выйти из аккаунта
-            </SecondaryButton>
-            <DangerButton onClick={handleDeleteAccount} disabled={deleteLoading}>
-              <DeleteOutlined />
-              Удалить аккаунт
-            </DangerButton>
-          </ButtonGroup>
-        </Section>
-      </Content>
-    </Container>
+            </Section>
+          </Content>
+        </PageContent>
+      </Container>
+    </>
   );
 };

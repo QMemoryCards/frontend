@@ -4,87 +4,100 @@ import styled from 'styled-components';
 import { App, Progress } from 'antd';
 import { ArrowLeftOutlined, CheckOutlined, CloseOutlined } from '@ant-design/icons';
 import { useStudy, StudyCard } from '@features/study';
+import { useGetDeck } from '@features/decks';
 import { Spinner } from '@shared/ui';
 import { ROUTES } from '@shared/config';
+import { Header as AppHeader } from '@widgets/Header';
+
+const PageWrapper = styled.div`
+  height: 100vh;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+`;
 
 const Container = styled.div`
-  min-height: 100vh;
+  flex: 1;
   background: #f0f2f5;
   display: flex;
   flex-direction: column;
-`;
-
-const Header = styled.div`
-  background: #ffffff;
-  padding: 16px 24px;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-`;
-
-const BackButton = styled.button`
-  background: transparent;
-  border: none;
-  cursor: pointer;
-  font-size: 16px;
-  color: #262626;
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  padding: 8px 16px;
-  border-radius: 6px;
-  transition: all 0.3s;
-
-  &:hover {
-    background: #f0f0f0;
-  }
-`;
-
-const Title = styled.h1`
-  font-size: 20px;
-  font-weight: 600;
-  color: #262626;
-  margin: 0;
-
-  @media (max-width: 768px) {
-    font-size: 18px;
-  }
+  overflow: hidden;
+  min-height: 0;
 `;
 
 const Content = styled.div`
   flex: 1;
   display: flex;
   flex-direction: column;
-  max-width: 900px;
+  max-width: 1000px;
   width: 100%;
   margin: 0 auto;
-  padding: 48px 24px;
+  padding: 12px 24px 20px;
+  min-height: 0;
+  overflow: hidden;
 
   @media (max-width: 768px) {
-    padding: 24px 16px;
+    padding: 8px 16px 16px;
   }
 `;
 
 const ProgressSection = styled.div`
-  margin-bottom: 32px;
+  flex-shrink: 0;
+  margin-bottom: 12px;
+`;
+
+const ProgressHeader = styled.div`
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 10px;
+`;
+
+const BackIcon = styled(ArrowLeftOutlined)`
+  font-size: 18px;
+  color: #595959;
+  cursor: pointer;
+  padding: 6px;
+  border-radius: 4px;
+  transition: all 0.3s;
+  flex-shrink: 0;
+
+  &:hover {
+    background: #e6e6e6;
+    color: #262626;
+  }
+`;
+
+const DeckName = styled.h2`
+  font-size: 18px;
+  font-weight: 600;
+  color: #262626;
+  margin: 0;
+  flex: 1;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+
+  @media (max-width: 768px) {
+    font-size: 16px;
+  }
 `;
 
 const ProgressInfo = styled.div`
   display: flex;
   justify-content: space-between;
   align-items: center;
-  margin-bottom: 12px;
+  margin-bottom: 6px;
 `;
 
 const CardCounter = styled.div`
-  font-size: 16px;
-  font-weight: 600;
-  color: #262626;
+  font-size: 14px;
+  font-weight: 500;
+  color: #595959;
 `;
 
 const ProgressPercent = styled.div`
-  font-size: 16px;
+  font-size: 14px;
   font-weight: 600;
   color: #1890ff;
 `;
@@ -94,32 +107,40 @@ const CardSection = styled.div`
   display: flex;
   align-items: center;
   justify-content: center;
-  margin-bottom: 32px;
+  margin-bottom: 12px;
+  min-height: 0;
+  overflow: hidden;
+
+  @media (max-width: 768px) {
+    margin-bottom: 10px;
+  }
 `;
 
 const ButtonsSection = styled.div`
+  flex-shrink: 0;
   display: flex;
-  gap: 16px;
+  gap: 12px;
   justify-content: center;
 
   @media (max-width: 768px) {
     flex-direction: column;
+    gap: 10px;
   }
 `;
 
 const AnswerButton = styled.button<{ $variant: 'remember' | 'forget' }>`
   flex: 1;
-  max-width: 280px;
-  height: 56px;
+  max-width: 240px;
+  height: 48px;
   border: none;
   border-radius: 8px;
-  font-size: 16px;
+  font-size: 15px;
   font-weight: 600;
   cursor: pointer;
   display: flex;
   align-items: center;
   justify-content: center;
-  gap: 12px;
+  gap: 8px;
   transition: all 0.3s;
 
   ${props =>
@@ -129,6 +150,8 @@ const AnswerButton = styled.button<{ $variant: 'remember' | 'forget' }>`
     color: #ffffff;
     &:hover {
       background: #73d13d;
+      transform: translateY(-1px);
+      box-shadow: 0 4px 12px rgba(82, 196, 26, 0.3);
     }
   `
       : `
@@ -136,8 +159,14 @@ const AnswerButton = styled.button<{ $variant: 'remember' | 'forget' }>`
     color: #ffffff;
     &:hover {
       background: #ff7875;
+      transform: translateY(-1px);
+      box-shadow: 0 4px 12px rgba(255, 77, 79, 0.3);
     }
   `}
+
+  &:active {
+    transform: translateY(0);
+  }
 
   &:disabled {
     opacity: 0.5;
@@ -146,28 +175,36 @@ const AnswerButton = styled.button<{ $variant: 'remember' | 'forget' }>`
 
   @media (max-width: 768px) {
     max-width: 100%;
+    height: 44px;
   }
 `;
 
 const ShowAnswerButton = styled.button`
   flex: 1;
-  max-width: 400px;
-  height: 56px;
+  max-width: 320px;
+  height: 48px;
   background: #1890ff;
   color: #ffffff;
   border: none;
   border-radius: 8px;
-  font-size: 16px;
+  font-size: 15px;
   font-weight: 600;
   cursor: pointer;
   transition: all 0.3s;
 
   &:hover {
     background: #40a9ff;
+    transform: translateY(-1px);
+    box-shadow: 0 4px 12px rgba(24, 144, 255, 0.3);
+  }
+
+  &:active {
+    transform: translateY(0);
   }
 
   @media (max-width: 768px) {
     max-width: 100%;
+    height: 44px;
   }
 `;
 
@@ -267,6 +304,7 @@ export const StudyPage: React.FC = () => {
   const navigate = useNavigate();
   const { modal } = App.useApp();
 
+  const { deck, fetchDeck } = useGetDeck();
   const {
     cards,
     loading,
@@ -283,10 +321,27 @@ export const StudyPage: React.FC = () => {
 
   useEffect(() => {
     if (deckId) {
+      fetchDeck(deckId);
       fetchStudyCards();
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [deckId]);
+
+  const handleNavigation = (path: string) => {
+    if (!isCompleted) {
+      modal.confirm({
+        title: 'Завершить обучение?',
+        content: 'Ваш прогресс будет сохранен.',
+        okText: 'Завершить',
+        cancelText: 'Отмена',
+        onOk: () => {
+          navigate(path);
+        },
+      });
+    } else {
+      navigate(path);
+    }
+  };
 
   const handleBack = () => {
     modal.confirm({
@@ -318,28 +373,29 @@ export const StudyPage: React.FC = () => {
 
   if (loading && cards.length === 0) {
     return (
-      <Container>
-        <Spinner />
-      </Container>
+      <PageWrapper>
+        <Container>
+          <Spinner />
+        </Container>
+      </PageWrapper>
     );
   }
 
   if (cards.length === 0 && !loading) {
     return (
-      <Container>
-        <Header>
-          <BackButton onClick={() => navigate(ROUTES.DECKS)}>
-            <ArrowLeftOutlined />
-            Назад
-          </BackButton>
-        </Header>
-        <Content>
-          <ResultsContainer>
-            <ResultsTitle>В этой колоде пока нет карточек</ResultsTitle>
-            <ResultButton onClick={() => navigate(ROUTES.DECKS)}>Вернуться к колодам</ResultButton>
-          </ResultsContainer>
-        </Content>
-      </Container>
+      <PageWrapper>
+        <AppHeader onNavigate={handleNavigation} />
+        <Container>
+          <Content>
+            <ResultsContainer>
+              <ResultsTitle>В этой колоде пока нет карточек</ResultsTitle>
+              <ResultButton onClick={() => navigate(ROUTES.DECKS)}>
+                Вернуться к колодам
+              </ResultButton>
+            </ResultsContainer>
+          </Content>
+        </Container>
+      </PageWrapper>
     );
   }
 
@@ -348,93 +404,89 @@ export const StudyPage: React.FC = () => {
     const learnedPercent = Math.round((rememberedCount / totalCards) * 100);
 
     return (
-      <Container>
-        <Header>
-          <BackButton onClick={handleBackToDecks}>
-            <ArrowLeftOutlined />
-            Назад
-          </BackButton>
-          <Title>Обучение завершено</Title>
-        </Header>
-        <Content>
-          <ResultsContainer>
-            <ResultsTitle>Отличная работа!</ResultsTitle>
-            <Stats>
-              <StatCard>
-                <StatValue $color="#52c41a">{rememberedCount}</StatValue>
-                <StatLabel>Помню</StatLabel>
-              </StatCard>
-              <StatCard>
-                <StatValue $color="#ff4d4f">{forgottenCount}</StatValue>
-                <StatLabel>Не помню</StatLabel>
-              </StatCard>
-              <StatCard>
-                <StatValue $color="#1890ff">{learnedPercent}%</StatValue>
-                <StatLabel>Прогресс</StatLabel>
-              </StatCard>
-            </Stats>
-            <ResultButtons>
-              <ResultButton $primary onClick={handleRepeat}>
-                Повторить снова
-              </ResultButton>
-              <ResultButton onClick={handleBackToDecks}>Вернуться к колодам</ResultButton>
-            </ResultButtons>
-          </ResultsContainer>
-        </Content>
-      </Container>
+      <PageWrapper>
+        <AppHeader onNavigate={handleNavigation} />
+        <Container>
+          <Content>
+            <ResultsContainer>
+              <ResultsTitle>Отличная работа!</ResultsTitle>
+              <Stats>
+                <StatCard>
+                  <StatValue $color="#52c41a">{rememberedCount}</StatValue>
+                  <StatLabel>Помню</StatLabel>
+                </StatCard>
+                <StatCard>
+                  <StatValue $color="#ff4d4f">{forgottenCount}</StatValue>
+                  <StatLabel>Не помню</StatLabel>
+                </StatCard>
+                <StatCard>
+                  <StatValue $color="#1890ff">{learnedPercent}%</StatValue>
+                  <StatLabel>Прогресс</StatLabel>
+                </StatCard>
+              </Stats>
+              <ResultButtons>
+                <ResultButton $primary onClick={handleRepeat}>
+                  Повторить снова
+                </ResultButton>
+                <ResultButton onClick={handleBackToDecks}>Вернуться к колодам</ResultButton>
+              </ResultButtons>
+            </ResultsContainer>
+          </Content>
+        </Container>
+      </PageWrapper>
     );
   }
 
   const currentCard = cards[currentCardIndex];
 
   return (
-    <Container>
-      <Header>
-        <BackButton onClick={handleBack}>
-          <ArrowLeftOutlined />
-          Завершить
-        </BackButton>
-        <Title>Обучение</Title>
-      </Header>
-      <Content>
-        <ProgressSection>
-          <ProgressInfo>
-            <CardCounter>
-              Карточка {currentCardIndex + 1} из {cards.length}
-            </CardCounter>
-            <ProgressPercent>{progress}%</ProgressPercent>
-          </ProgressInfo>
-          <Progress percent={progress} showInfo={false} strokeColor="#1890ff" />
-        </ProgressSection>
+    <PageWrapper>
+      <AppHeader onNavigate={handleNavigation} />
+      <Container>
+        <Content>
+          <ProgressSection>
+            <ProgressHeader>
+              <BackIcon onClick={handleBack} />
+              <DeckName>{deck?.name || 'Обучение'}</DeckName>
+            </ProgressHeader>
+            <ProgressInfo>
+              <CardCounter>
+                Карточка {currentCardIndex + 1} из {cards.length}
+              </CardCounter>
+              <ProgressPercent>{progress}%</ProgressPercent>
+            </ProgressInfo>
+            <Progress percent={progress} showInfo={false} strokeColor="#1890ff" />
+          </ProgressSection>
 
-        <CardSection>
-          {currentCard && (
-            <StudyCard
-              question={currentCard.question}
-              answer={currentCard.answer}
-              showAnswer={showAnswer}
-              onToggleAnswer={toggleAnswer}
-            />
-          )}
-        </CardSection>
+          <CardSection>
+            {currentCard && (
+              <StudyCard
+                question={currentCard.question}
+                answer={currentCard.answer}
+                showAnswer={showAnswer}
+                onToggleAnswer={toggleAnswer}
+              />
+            )}
+          </CardSection>
 
-        <ButtonsSection>
-          {!showAnswer ? (
-            <ShowAnswerButton onClick={toggleAnswer}>Показать ответ</ShowAnswerButton>
-          ) : (
-            <>
-              <AnswerButton $variant="forget" onClick={handleForgotten}>
-                <CloseOutlined />
-                Не помню
-              </AnswerButton>
-              <AnswerButton $variant="remember" onClick={handleRemembered}>
-                <CheckOutlined />
-                Помню
-              </AnswerButton>
-            </>
-          )}
-        </ButtonsSection>
-      </Content>
-    </Container>
+          <ButtonsSection>
+            {!showAnswer ? (
+              <ShowAnswerButton onClick={toggleAnswer}>Показать ответ</ShowAnswerButton>
+            ) : (
+              <>
+                <AnswerButton $variant="forget" onClick={handleForgotten}>
+                  <CloseOutlined />
+                  Не помню
+                </AnswerButton>
+                <AnswerButton $variant="remember" onClick={handleRemembered}>
+                  <CheckOutlined />
+                  Помню
+                </AnswerButton>
+              </>
+            )}
+          </ButtonsSection>
+        </Content>
+      </Container>
+    </PageWrapper>
   );
 };
