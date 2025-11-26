@@ -370,8 +370,6 @@ export const useSharedDeck = (): UseSharedDeckReturn => {
   return { deck, isLoading, error, fetchSharedDeck };
 };
 
-
-
 interface UseImportSharedDeckReturn {
   importDeck: (token: string, data?: ImportSharedDeckRequest) => Promise<DeckDetails | null>;
   isLoading: boolean;
@@ -385,7 +383,10 @@ export const useImportSharedDeck = (): UseImportSharedDeckReturn => {
   const [importedDeck, setImportedDeck] = useState<DeckDetails | null>(null);
   const { message } = App.useApp();
 
-  const importDeckHandler = async (token: string, data?: ImportSharedDeckRequest): Promise<DeckDetails | null> => {
+  const importDeckHandler = async (
+    token: string,
+    data?: ImportSharedDeckRequest
+  ): Promise<DeckDetails | null> => {
     setIsLoading(true);
     setError(null);
     setImportedDeck(null);

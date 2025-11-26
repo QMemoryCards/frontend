@@ -10,27 +10,33 @@ interface StudyCardProps {
 
 const CardContainer = styled.div`
   background: #ffffff;
-  border-radius: 16px;
-  box-shadow: 0 4px 24px rgba(0, 0, 0, 0.12);
-  padding: 48px;
+  border-radius: 12px;
+  box-shadow: 0 2px 16px rgba(0, 0, 0, 0.08);
+  padding: 24px;
   width: 100%;
   max-width: 700px;
-  height: 450px;
+  height: 85%;
+  max-height: 100%;
   display: flex;
   flex-direction: column;
   justify-content: center;
   align-items: center;
   cursor: pointer;
-  transition: transform 0.2s;
+  transition: all 0.2s;
   position: relative;
+  overflow: hidden;
 
   &:hover {
-    transform: translateY(-4px);
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.12);
+    transform: translateY(-2px);
+  }
+
+  &:active {
+    transform: translateY(0);
   }
 
   @media (max-width: 768px) {
-    padding: 32px 24px;
-    height: 380px;
+    padding: 20px;
   }
 `;
 
@@ -45,39 +51,44 @@ const CardSide = styled.div<{ $show: boolean }>`
   position: absolute;
   top: 0;
   left: 0;
-  padding: 48px;
+  padding: 24px;
+  overflow: auto;
 
   @media (max-width: 768px) {
-    padding: 32px 24px;
+    padding: 20px;
   }
 `;
 
 const Label = styled.div`
-  font-size: 14px;
+  font-size: 11px;
   font-weight: 600;
   color: #8c8c8c;
   text-transform: uppercase;
-  letter-spacing: 1px;
-  margin-bottom: 24px;
+  letter-spacing: 0.5px;
+  margin-bottom: 12px;
+  flex-shrink: 0;
 `;
 
 const Text = styled.div`
-  font-size: 24px;
+  font-size: 18px;
   font-weight: 500;
   color: #262626;
-  line-height: 1.5;
+  line-height: 1.4;
   word-wrap: break-word;
   max-width: 100%;
+  overflow-y: auto;
+  max-height: 100%;
 
   @media (max-width: 768px) {
-    font-size: 20px;
+    font-size: 16px;
   }
 `;
 
 const Hint = styled.div`
-  margin-top: 32px;
-  font-size: 14px;
+  margin-top: 14px;
+  font-size: 12px;
   color: #8c8c8c;
+  flex-shrink: 0;
 `;
 
 export const StudyCard: React.FC<StudyCardProps> = ({

@@ -117,21 +117,33 @@ const ProfileButton = styled.button`
   }
 `;
 
-export const Header: React.FC = () => {
+interface HeaderProps {
+  onNavigate?: (path: string) => void;
+}
+
+export const Header: React.FC<HeaderProps> = ({ onNavigate }) => {
   const navigate = useNavigate();
   const location = useLocation();
 
   const isDecksPage = location.pathname === ROUTES.DECKS || location.pathname.startsWith('/decks');
 
+  const handleNavigate = (path: string) => {
+    if (onNavigate) {
+      onNavigate(path);
+    } else {
+      navigate(path);
+    }
+  };
+
   return (
     <HeaderContainer>
       <HeaderContent>
-        <Logo onClick={() => navigate(ROUTES.DECKS)}>Учебные карточки</Logo>
+        <Logo onClick={() => handleNavigate(ROUTES.DECKS)}>Учебные карточки</Logo>
         <Nav>
-          <NavButton $active={isDecksPage} onClick={() => navigate(ROUTES.DECKS)}>
+          <NavButton $active={isDecksPage} onClick={() => handleNavigate(ROUTES.DECKS)}>
             Колоды
           </NavButton>
-          <ProfileButton onClick={() => navigate(ROUTES.PROFILE)} aria-label="Профиль">
+          <ProfileButton onClick={() => handleNavigate(ROUTES.PROFILE)} aria-label="Профиль">
             <UserOutlined />
           </ProfileButton>
         </Nav>

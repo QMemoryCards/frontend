@@ -397,7 +397,7 @@ export const DecksPage: React.FC = () => {
                 </FilterButton>
               </FilterContainer>
 
-              <CreateButton 
+              <CreateButton
                 onClick={() => setIsCreateModalOpen(true)}
                 disabled={totalElements >= 30}
                 title={totalElements >= 30 ? 'Достигнут лимит в 30 колод' : ''}
@@ -421,7 +421,7 @@ export const DecksPage: React.FC = () => {
                     : 'Попробуйте изменить параметры поиска или фильтры'}
                 </EmptyDescription>
                 {decks.length === 0 && (
-                  <CreateButton 
+                  <CreateButton
                     onClick={() => setIsCreateModalOpen(true)}
                     disabled={totalElements >= 30}
                     title={totalElements >= 30 ? 'Достигнут лимит в 30 колод' : ''}
