@@ -213,7 +213,7 @@ export const SharedDeckPage: React.FC = () => {
     // Импортируем колоду с выбранными пользователем данными
     const result = await importDeck(token, {
       newName: importName.trim(),
-      description: importDescription.trim() || undefined,
+      newDescription: importDescription.trim() || undefined,
     });
 
     if (result) {
