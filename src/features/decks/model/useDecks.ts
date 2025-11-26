@@ -28,7 +28,7 @@ interface UseDecksReturn {
   refetch: () => Promise<void>;
 }
 
-export const useDecks = (initialPage: number = 0, pageSize: number = 20): UseDecksReturn => {
+export const useDecks = (initialPage: number = 0, pageSize: number = 30): UseDecksReturn => {
   const [decks, setDecks] = useState<DeckDetails[]>([]);
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);

@@ -148,6 +148,20 @@ const CreateButton = styled.button`
     transform: translateY(0);
   }
 
+  &:disabled {
+    background-color: #d9d9d9;
+    color: #8c8c8c;
+    cursor: not-allowed;
+    transform: none;
+    box-shadow: none;
+
+    &:hover {
+      background-color: #d9d9d9;
+      transform: none;
+      box-shadow: none;
+    }
+  }
+
   @media (max-width: 768px) {
     width: 100%;
     justify-content: center;
@@ -383,7 +397,11 @@ export const DecksPage: React.FC = () => {
                 </FilterButton>
               </FilterContainer>
 
-              <CreateButton onClick={() => setIsCreateModalOpen(true)}>
+              <CreateButton 
+                onClick={() => setIsCreateModalOpen(true)}
+                disabled={totalElements >= 30}
+                title={totalElements >= 30 ? 'Достигнут лимит в 30 колод' : ''}
+              >
                 <PlusOutlined />
                 Создать колоду
               </CreateButton>
@@ -403,7 +421,11 @@ export const DecksPage: React.FC = () => {
                     : 'Попробуйте изменить параметры поиска или фильтры'}
                 </EmptyDescription>
                 {decks.length === 0 && (
-                  <CreateButton onClick={() => setIsCreateModalOpen(true)}>
+                  <CreateButton 
+                    onClick={() => setIsCreateModalOpen(true)}
+                    disabled={totalElements >= 30}
+                    title={totalElements >= 30 ? 'Достигнут лимит в 30 колод' : ''}
+                  >
                     <PlusOutlined />
                     Создать первую колоду
                   </CreateButton>
