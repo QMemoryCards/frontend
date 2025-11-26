@@ -260,11 +260,23 @@ export const ProfilePage: React.FC = () => {
       return;
     }
 
-    const updatedUser = await updateUser({ email, login });
-    if (updatedUser) {
-      setUser(updatedUser);
+    const result = await updateUser({ email, login });
+    if (result.user) {
+      setUser(result.user);
       messageApi.success('Данные успешно обновлены');
       setEditMode(false);
+      setEmailError('');
+      setLoginError('');
+    } else if (result.statusCode === 409) {
+      if (result.code === 'email_conflict') {
+        setEmailError('Данный email уже занят');
+      } else if (result.code === 'login_conflict') {
+        setLoginError('Данный логин уже занят');
+      } else {
+        messageApi.error('Email или логин уже используются');
+      }
+    } else {
+      messageApi.error(result.message || 'Ошибка при обновлении данных');
     }
   };
 

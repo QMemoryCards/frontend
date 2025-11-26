@@ -28,15 +28,21 @@ export const useGetUser = () => {
 export const useUpdateUser = () => {
   const [loading, setLoading] = useState(false);
 
-  const updateUser = async (data: UpdateUserRequest): Promise<User | null> => {
+  const updateUser = async (
+    data: UpdateUserRequest
+  ): Promise<{ user: User | null; statusCode?: number; code?: string; message?: string }> => {
     setLoading(true);
     try {
       const response = await userApi.updateMe(data);
-      return response.data;
+      return { user: response.data };
     } catch (error) {
       const apiError = handleApiError(error as AxiosError);
-      message.error(apiError.message);
-      return null;
+      return {
+        user: null,
+        statusCode: apiError.statusCode,
+        code: apiError.code,
+        message: apiError.message,
+      };
     } finally {
       setLoading(false);
     }
