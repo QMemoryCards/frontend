@@ -3,6 +3,7 @@ import { createBrowserRouter, RouterProvider } from 'react-router-dom';
 import { App } from 'antd';
 import { Spinner } from '@shared/ui';
 import { WelcomePage } from '@pages/welcome';
+import { NotFoundPage } from '@pages/not-found';
 import { ROUTES } from '@shared/config';
 import { setGlobalMessage } from '@shared/lib/toast';
 import { SharedDeckPage } from '@pages/deck-shared';
@@ -92,6 +93,9 @@ const router = createBrowserRouter([
         <SharedDeckPage />
       </Suspense>
     ),
+  },  {
+    path: '*',
+    element: <NotFoundPage />,
   },
 ]);
 
