@@ -186,7 +186,9 @@ const DecksGrid = styled.div`
 const DeckCardWrapper = styled.div<{ $isVisible: boolean }>`
   opacity: ${props => (props.$isVisible ? 1 : 0)};
   transform: translateY(${props => (props.$isVisible ? '0' : '20px')});
-  transition: opacity 0.5s ease, transform 0.5s ease;
+  transition:
+    opacity 0.5s ease,
+    transform 0.5s ease;
 `;
 
 const LoadingContainer = styled.div`
@@ -313,10 +315,6 @@ export const DecksPage: React.FC = () => {
       cards.forEach(card => observer.unobserve(card));
     };
   }, [filteredDecks]);
-
-  useEffect(() => {
-    refetch();
-  }, [refetch]);
 
   const handleCreateDeck = async (data: CreateDeckRequest): Promise<boolean> => {
     const success = await createDeckFn(data);

@@ -156,32 +156,35 @@ export const useGetDeck = (): UseGetDeckReturn => {
   const [error, setError] = useState<string | null>(null);
   const { message } = App.useApp();
 
-  const fetchDeck = async (deckId: string) => {
-    setIsLoading(true);
-    setError(null);
+  const fetchDeck = useCallback(
+    async (deckId: string) => {
+      setIsLoading(true);
+      setError(null);
 
-    try {
-      const deckData = await getDeck(deckId);
-      setDeck(deckData);
-    } catch (err: unknown) {
-      const apiError = handleApiError(err as AxiosError);
-      let errorMessage = 'Ошибка загрузки колоды';
+      try {
+        const deckData = await getDeck(deckId);
+        setDeck(deckData);
+      } catch (err: unknown) {
+        const apiError = handleApiError(err as AxiosError);
+        let errorMessage = 'Ошибка загрузки колоды';
 
-      if (apiError.statusCode === 404) {
-        errorMessage = 'Колода не найдена';
-      } else if (apiError.statusCode === 0) {
-        errorMessage = 'Сервер недоступен. Проверьте подключение к интернету';
-      } else if (apiError.message) {
-        errorMessage = apiError.message;
+        if (apiError.statusCode === 404) {
+          errorMessage = 'Колода не найдена';
+        } else if (apiError.statusCode === 0) {
+          errorMessage = 'Сервер недоступен. Проверьте подключение к интернету';
+        } else if (apiError.message) {
+          errorMessage = apiError.message;
+        }
+
+        setError(errorMessage);
+        message.error(errorMessage);
+        // НЕ бросаем ошибку дальше
+      } finally {
+        setIsLoading(false);
       }
-
-      setError(errorMessage);
-      message.error(errorMessage);
-      // НЕ бросаем ошибку дальше
-    } finally {
-      setIsLoading(false);
-    }
-  };
+    },
+    [message]
+  );
 
   return { deck, isLoading, error, fetchDeck };
 };

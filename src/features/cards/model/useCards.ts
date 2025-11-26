@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useCallback } from 'react';
 import { message } from 'antd';
 import { AxiosError } from 'axios';
 import { cardApi } from '@entities/card';
@@ -11,7 +11,7 @@ export const useCards = (deckId: string) => {
   const [loading, setLoading] = useState(false);
   const [totalElements, setTotalElements] = useState(0);
 
-  const fetchCards = async () => {
+  const fetchCards = useCallback(async () => {
     setLoading(true);
     try {
       const response = await cardApi.getCards(deckId);
@@ -23,7 +23,7 @@ export const useCards = (deckId: string) => {
     } finally {
       setLoading(false);
     }
-  };
+  }, [deckId]);
 
   return { cards, loading, totalElements, fetchCards, setCards, setTotalElements };
 };
