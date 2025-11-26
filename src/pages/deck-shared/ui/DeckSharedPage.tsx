@@ -179,14 +179,7 @@ export const SharedDeckPage: React.FC = () => {
       <Content>
         <SuccessIcon>✓</SuccessIcon>
         <Title>Общий доступ к колоде</Title>
-        <Message>
-          Вы просматриваете колоду, которой поделился другой пользователь.
-        </Message>
-
-        <TokenContainer>
-          <TokenLabel>Токен доступа:</TokenLabel>
-          <TokenValue>{token || 'Токен не найден'}</TokenValue>
-        </TokenContainer>
+        <Message>Вы просматриваете колоду, которой поделился другой пользователь.</Message>
 
         {isLoading && (
           <LoadingContainer>
