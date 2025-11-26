@@ -6,6 +6,7 @@ import { ArrowLeftOutlined, CheckOutlined, CloseOutlined } from '@ant-design/ico
 import { useStudy, StudyCard } from '@features/study';
 import { Spinner } from '@shared/ui';
 import { ROUTES } from '@shared/config';
+import { Header as AppHeader } from '@widgets/Header';
 
 const Container = styled.div`
   min-height: 100vh;
@@ -14,7 +15,7 @@ const Container = styled.div`
   flex-direction: column;
 `;
 
-const Header = styled.div`
+const StudyHeader = styled.div`
   background: #ffffff;
   padding: 16px 24px;
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
@@ -326,20 +327,25 @@ export const StudyPage: React.FC = () => {
 
   if (cards.length === 0 && !loading) {
     return (
-      <Container>
-        <Header>
-          <BackButton onClick={() => navigate(ROUTES.DECKS)}>
-            <ArrowLeftOutlined />
-            Назад
-          </BackButton>
-        </Header>
-        <Content>
-          <ResultsContainer>
-            <ResultsTitle>В этой колоде пока нет карточек</ResultsTitle>
-            <ResultButton onClick={() => navigate(ROUTES.DECKS)}>Вернуться к колодам</ResultButton>
-          </ResultsContainer>
-        </Content>
-      </Container>
+      <>
+        <AppHeader />
+        <Container>
+          <StudyHeader>
+            <BackButton onClick={() => navigate(ROUTES.DECKS)}>
+              <ArrowLeftOutlined />
+              Назад
+            </BackButton>
+          </StudyHeader>
+          <Content>
+            <ResultsContainer>
+              <ResultsTitle>В этой колоде пока нет карточек</ResultsTitle>
+              <ResultButton onClick={() => navigate(ROUTES.DECKS)}>
+                Вернуться к колодам
+              </ResultButton>
+            </ResultsContainer>
+          </Content>
+        </Container>
+      </>
     );
   }
 
@@ -348,93 +354,99 @@ export const StudyPage: React.FC = () => {
     const learnedPercent = Math.round((rememberedCount / totalCards) * 100);
 
     return (
-      <Container>
-        <Header>
-          <BackButton onClick={handleBackToDecks}>
-            <ArrowLeftOutlined />
-            Назад
-          </BackButton>
-          <Title>Обучение завершено</Title>
-        </Header>
-        <Content>
-          <ResultsContainer>
-            <ResultsTitle>Отличная работа!</ResultsTitle>
-            <Stats>
-              <StatCard>
-                <StatValue $color="#52c41a">{rememberedCount}</StatValue>
-                <StatLabel>Помню</StatLabel>
-              </StatCard>
-              <StatCard>
-                <StatValue $color="#ff4d4f">{forgottenCount}</StatValue>
-                <StatLabel>Не помню</StatLabel>
-              </StatCard>
-              <StatCard>
-                <StatValue $color="#1890ff">{learnedPercent}%</StatValue>
-                <StatLabel>Прогресс</StatLabel>
-              </StatCard>
-            </Stats>
-            <ResultButtons>
-              <ResultButton $primary onClick={handleRepeat}>
-                Повторить снова
-              </ResultButton>
-              <ResultButton onClick={handleBackToDecks}>Вернуться к колодам</ResultButton>
-            </ResultButtons>
-          </ResultsContainer>
-        </Content>
-      </Container>
+      <>
+        <AppHeader />
+        <Container>
+          <StudyHeader>
+            <BackButton onClick={handleBackToDecks}>
+              <ArrowLeftOutlined />
+              Назад
+            </BackButton>
+            <Title>Обучение завершено</Title>
+          </StudyHeader>
+          <Content>
+            <ResultsContainer>
+              <ResultsTitle>Отличная работа!</ResultsTitle>
+              <Stats>
+                <StatCard>
+                  <StatValue $color="#52c41a">{rememberedCount}</StatValue>
+                  <StatLabel>Помню</StatLabel>
+                </StatCard>
+                <StatCard>
+                  <StatValue $color="#ff4d4f">{forgottenCount}</StatValue>
+                  <StatLabel>Не помню</StatLabel>
+                </StatCard>
+                <StatCard>
+                  <StatValue $color="#1890ff">{learnedPercent}%</StatValue>
+                  <StatLabel>Прогресс</StatLabel>
+                </StatCard>
+              </Stats>
+              <ResultButtons>
+                <ResultButton $primary onClick={handleRepeat}>
+                  Повторить снова
+                </ResultButton>
+                <ResultButton onClick={handleBackToDecks}>Вернуться к колодам</ResultButton>
+              </ResultButtons>
+            </ResultsContainer>
+          </Content>
+        </Container>
+      </>
     );
   }
 
   const currentCard = cards[currentCardIndex];
 
   return (
-    <Container>
-      <Header>
-        <BackButton onClick={handleBack}>
-          <ArrowLeftOutlined />
-          Завершить
-        </BackButton>
-        <Title>Обучение</Title>
-      </Header>
-      <Content>
-        <ProgressSection>
-          <ProgressInfo>
-            <CardCounter>
-              Карточка {currentCardIndex + 1} из {cards.length}
-            </CardCounter>
-            <ProgressPercent>{progress}%</ProgressPercent>
-          </ProgressInfo>
-          <Progress percent={progress} showInfo={false} strokeColor="#1890ff" />
-        </ProgressSection>
+    <>
+      <AppHeader />
+      <Container>
+        <StudyHeader>
+          <BackButton onClick={handleBack}>
+            <ArrowLeftOutlined />
+            Завершить
+          </BackButton>
+          <Title>Обучение</Title>
+        </StudyHeader>
+        <Content>
+          <ProgressSection>
+            <ProgressInfo>
+              <CardCounter>
+                Карточка {currentCardIndex + 1} из {cards.length}
+              </CardCounter>
+              <ProgressPercent>{progress}%</ProgressPercent>
+            </ProgressInfo>
+            <Progress percent={progress} showInfo={false} strokeColor="#1890ff" />
+          </ProgressSection>
 
-        <CardSection>
-          {currentCard && (
-            <StudyCard
-              question={currentCard.question}
-              answer={currentCard.answer}
-              showAnswer={showAnswer}
-              onToggleAnswer={toggleAnswer}
-            />
-          )}
-        </CardSection>
+          <CardSection>
+            {currentCard && (
+              <StudyCard
+                question={currentCard.question}
+                answer={currentCard.answer}
+                showAnswer={showAnswer}
+                onToggleAnswer={toggleAnswer}
+              />
+            )}
+          </CardSection>
 
-        <ButtonsSection>
-          {!showAnswer ? (
-            <ShowAnswerButton onClick={toggleAnswer}>Показать ответ</ShowAnswerButton>
-          ) : (
-            <>
-              <AnswerButton $variant="forget" onClick={handleForgotten}>
-                <CloseOutlined />
-                Не помню
-              </AnswerButton>
-              <AnswerButton $variant="remember" onClick={handleRemembered}>
-                <CheckOutlined />
-                Помню
-              </AnswerButton>
-            </>
-          )}
-        </ButtonsSection>
-      </Content>
-    </Container>
+          <ButtonsSection>
+            {!showAnswer ? (
+              <ShowAnswerButton onClick={toggleAnswer}>Показать ответ</ShowAnswerButton>
+            ) : (
+              <>
+                <AnswerButton $variant="forget" onClick={handleForgotten}>
+                  <CloseOutlined />
+                  Не помню
+                </AnswerButton>
+                <AnswerButton $variant="remember" onClick={handleRemembered}>
+                  <CheckOutlined />
+                  Помню
+                </AnswerButton>
+              </>
+            )}
+          </ButtonsSection>
+        </Content>
+      </Container>
+    </>
   );
 };

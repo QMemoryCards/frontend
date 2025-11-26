@@ -2,17 +2,20 @@ import React, { useState, useMemo, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import styled from 'styled-components';
 import { App } from 'antd';
-import { PlusOutlined, SearchOutlined, UserOutlined } from '@ant-design/icons';
+import { PlusOutlined, SearchOutlined } from '@ant-design/icons';
 import { DeckCard } from '@entities/deck';
 import type { DeckDetails, CreateDeckRequest } from '@entities/deck';
 import { useDecks, useCreateDeck, useDeleteDeck } from '@features/decks';
 import { CreateDeckModal } from '@features/decks';
 import { Spinner } from '@shared/ui';
-import { ROUTES } from '@shared/config';
+import { Header } from '@widgets/Header';
 
 const Container = styled.div`
   min-height: 100vh;
   background: #f0f2f5;
+`;
+
+const PageContent = styled.div`
   padding: 24px;
 
   @media (max-width: 768px) {
@@ -20,7 +23,7 @@ const Container = styled.div`
   }
 `;
 
-const Header = styled.div`
+const PageHeader = styled.div`
   max-width: 1200px;
   margin: 0 auto 32px;
 `;
@@ -148,27 +151,6 @@ const CreateButton = styled.button`
   @media (max-width: 768px) {
     width: 100%;
     justify-content: center;
-  }
-`;
-
-const ProfileButton = styled.button`
-  width: 44px;
-  height: 44px;
-  border-radius: 50%;
-  border: 2px solid #d9d9d9;
-  background: #ffffff;
-  color: #595959;
-  cursor: pointer;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-size: 18px;
-  transition: all 0.3s;
-
-  &:hover {
-    border-color: #1890ff;
-    color: #1890ff;
-    transform: scale(1.05);
   }
 `;
 
@@ -321,122 +303,135 @@ export const DecksPage: React.FC = () => {
 
   if (isLoading) {
     return (
-      <Container>
-        <LoadingContainer>
-          <Spinner size={48} />
-        </LoadingContainer>
-      </Container>
+      <>
+        <Header />
+        <Container>
+          <PageContent>
+            <LoadingContainer>
+              <Spinner size={48} />
+            </LoadingContainer>
+          </PageContent>
+        </Container>
+      </>
     );
   }
 
   return (
-    <Container>
-      <Header>
-        <TitleRow>
-          <Title>Мои колоды</Title>
-          <ProfileButton onClick={() => navigate(ROUTES.PROFILE)} aria-label="Профиль">
-            <UserOutlined />
-          </ProfileButton>
-        </TitleRow>
+    <>
+      <Header />
+      <Container>
+        <PageContent>
+          <PageHeader>
+            <TitleRow>
+              <Title>Мои колоды</Title>
+            </TitleRow>
 
-        {decks.length > 0 && (
-          <Stats>
-            <StatItem>
-              <StatLabel>Всего колод</StatLabel>
-              <StatValue>{totalElements}</StatValue>
-            </StatItem>
-            <StatItem>
-              <StatLabel>Изучено</StatLabel>
-              <StatValue>{decks.filter(d => d.learnedPercent === 100).length}</StatValue>
-            </StatItem>
-            <StatItem>
-              <StatLabel>В процессе</StatLabel>
-              <StatValue>
-                {decks.filter(d => d.learnedPercent > 0 && d.learnedPercent < 100).length}
-              </StatValue>
-            </StatItem>
-          </Stats>
-        )}
+            {decks.length > 0 && (
+              <Stats>
+                <StatItem>
+                  <StatLabel>Всего колод</StatLabel>
+                  <StatValue>{totalElements}</StatValue>
+                </StatItem>
+                <StatItem>
+                  <StatLabel>Изучено</StatLabel>
+                  <StatValue>{decks.filter(d => d.learnedPercent === 100).length}</StatValue>
+                </StatItem>
+                <StatItem>
+                  <StatLabel>В процессе</StatLabel>
+                  <StatValue>
+                    {decks.filter(d => d.learnedPercent > 0 && d.learnedPercent < 100).length}
+                  </StatValue>
+                </StatItem>
+              </Stats>
+            )}
 
-        <Controls>
-          <SearchContainer>
-            <SearchIcon />
-            <SearchInput
-              type="text"
-              placeholder="Поиск по названию или описанию..."
-              value={searchQuery}
-              onChange={e => setSearchQuery(e.target.value)}
-            />
-          </SearchContainer>
+            <Controls>
+              <SearchContainer>
+                <SearchIcon />
+                <SearchInput
+                  type="text"
+                  placeholder="Поиск по названию или описанию..."
+                  value={searchQuery}
+                  onChange={e => setSearchQuery(e.target.value)}
+                />
+              </SearchContainer>
 
-          <FilterContainer>
-            <FilterButton $active={filterStatus === 'all'} onClick={() => setFilterStatus('all')}>
-              Все
-            </FilterButton>
-            <FilterButton $active={filterStatus === 'new'} onClick={() => setFilterStatus('new')}>
-              Новые
-            </FilterButton>
-            <FilterButton
-              $active={filterStatus === 'learning'}
-              onClick={() => setFilterStatus('learning')}
-            >
-              В изучении
-            </FilterButton>
-            <FilterButton
-              $active={filterStatus === 'learned'}
-              onClick={() => setFilterStatus('learned')}
-            >
-              Изучено
-            </FilterButton>
-          </FilterContainer>
+              <FilterContainer>
+                <FilterButton
+                  $active={filterStatus === 'all'}
+                  onClick={() => setFilterStatus('all')}
+                >
+                  Все
+                </FilterButton>
+                <FilterButton
+                  $active={filterStatus === 'new'}
+                  onClick={() => setFilterStatus('new')}
+                >
+                  Новые
+                </FilterButton>
+                <FilterButton
+                  $active={filterStatus === 'learning'}
+                  onClick={() => setFilterStatus('learning')}
+                >
+                  В изучении
+                </FilterButton>
+                <FilterButton
+                  $active={filterStatus === 'learned'}
+                  onClick={() => setFilterStatus('learned')}
+                >
+                  Изучено
+                </FilterButton>
+              </FilterContainer>
 
-          <CreateButton onClick={() => setIsCreateModalOpen(true)}>
-            <PlusOutlined />
-            Создать колоду
-          </CreateButton>
-        </Controls>
-      </Header>
-
-      <Content>
-        {filteredDecks.length === 0 ? (
-          <EmptyState>
-            <EmptyIcon>📚</EmptyIcon>
-            <EmptyTitle>
-              {decks.length === 0 ? 'У вас пока нет колод' : 'Ничего не найдено'}
-            </EmptyTitle>
-            <EmptyDescription>
-              {decks.length === 0
-                ? 'Создайте свою первую колоду, чтобы начать изучение'
-                : 'Попробуйте изменить параметры поиска или фильтры'}
-            </EmptyDescription>
-            {decks.length === 0 && (
               <CreateButton onClick={() => setIsCreateModalOpen(true)}>
                 <PlusOutlined />
-                Создать первую колоду
+                Создать колоду
               </CreateButton>
-            )}
-          </EmptyState>
-        ) : (
-          <DecksGrid>
-            {filteredDecks.map(deck => (
-              <DeckCard
-                key={deck.id}
-                deck={deck}
-                onEdit={handleEditDeck}
-                onDelete={handleDeleteDeck}
-                onStudy={handleStudyDeck}
-              />
-            ))}
-          </DecksGrid>
-        )}
-      </Content>
+            </Controls>
+          </PageHeader>
 
-      <CreateDeckModal
-        isOpen={isCreateModalOpen}
-        onClose={() => setIsCreateModalOpen(false)}
-        onSubmit={handleCreateDeck}
-        isLoading={isCreating}
-      />
-    </Container>
+          <Content>
+            {filteredDecks.length === 0 ? (
+              <EmptyState>
+                <EmptyIcon>📚</EmptyIcon>
+                <EmptyTitle>
+                  {decks.length === 0 ? 'У вас пока нет колод' : 'Ничего не найдено'}
+                </EmptyTitle>
+                <EmptyDescription>
+                  {decks.length === 0
+                    ? 'Создайте свою первую колоду, чтобы начать изучение'
+                    : 'Попробуйте изменить параметры поиска или фильтры'}
+                </EmptyDescription>
+                {decks.length === 0 && (
+                  <CreateButton onClick={() => setIsCreateModalOpen(true)}>
+                    <PlusOutlined />
+                    Создать первую колоду
+                  </CreateButton>
+                )}
+              </EmptyState>
+            ) : (
+              <DecksGrid>
+                {filteredDecks.map(deck => (
+                  <DeckCard
+                    key={deck.id}
+                    deck={deck}
+                    onEdit={handleEditDeck}
+                    onDelete={handleDeleteDeck}
+                    onStudy={handleStudyDeck}
+                  />
+                ))}
+              </DecksGrid>
+            )}
+          </Content>
+
+          <CreateDeckModal
+            isOpen={isCreateModalOpen}
+            onClose={() => setIsCreateModalOpen(false)}
+            onSubmit={handleCreateDeck}
+            isLoading={isCreating}
+          />
+        </PageContent>
+      </Container>
+    </>
   );
 };
