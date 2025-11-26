@@ -165,8 +165,8 @@ export const SharedDeckPage: React.FC = () => {
 
     // Импортируем колоду с текущим названием и описанием
     const result = await importDeck(token, {
-      newName: deck?.name ? `${deck.name} (импорт)` : undefined,
-      description: deck?.description || undefined,
+      newName: importName.trim(),
+      newDescription: importDescription.trim() || undefined,
     });
 
     if (result) {
