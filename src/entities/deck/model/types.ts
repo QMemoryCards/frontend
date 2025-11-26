@@ -77,6 +77,6 @@ export interface SharedDeck {
 
 export interface ImportSharedDeckRequest {
   newName?: string;
-  description?: string;
+  newDescription?: string;
 }
 
