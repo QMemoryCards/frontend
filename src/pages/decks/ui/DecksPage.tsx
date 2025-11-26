@@ -183,6 +183,12 @@ const DecksGrid = styled.div`
   }
 `;
 
+const DeckCardWrapper = styled.div<{ $isVisible: boolean }>`
+  opacity: ${props => (props.$isVisible ? 1 : 0)};
+  transform: translateY(${props => (props.$isVisible ? '0' : '20px')});
+  transition: opacity 0.5s ease, transform 0.5s ease;
+`;
+
 const LoadingContainer = styled.div`
   display: flex;
   justify-content: center;
@@ -252,6 +258,7 @@ export const DecksPage: React.FC = () => {
   const [isCreateModalOpen, setIsCreateModalOpen] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');
   const [filterStatus, setFilterStatus] = useState<FilterStatus>('all');
+  const [visibleCards, setVisibleCards] = useState<Set<string>>(new Set());
 
   const { decks, isLoading, totalElements, refetch } = useDecks();
   const { createDeck: createDeckFn, isLoading: isCreating } = useCreateDeck();
@@ -280,6 +287,32 @@ export const DecksPage: React.FC = () => {
 
     return filtered;
   }, [decks, searchQuery, filterStatus]);
+
+  useEffect(() => {
+    const observer = new IntersectionObserver(
+      entries => {
+        entries.forEach(entry => {
+          if (entry.isIntersecting) {
+            const deckId = entry.target.getAttribute('data-deck-id');
+            if (deckId) {
+              setVisibleCards(prev => new Set(prev).add(deckId));
+            }
+          }
+        });
+      },
+      {
+        threshold: 0.1,
+        rootMargin: '50px',
+      }
+    );
+
+    const cards = document.querySelectorAll('[data-deck-id]');
+    cards.forEach(card => observer.observe(card));
+
+    return () => {
+      cards.forEach(card => observer.unobserve(card));
+    };
+  }, [filteredDecks]);
 
   useEffect(() => {
     refetch();
@@ -434,13 +467,18 @@ export const DecksPage: React.FC = () => {
             ) : (
               <DecksGrid>
                 {filteredDecks.map(deck => (
-                  <DeckCard
+                  <DeckCardWrapper
                     key={deck.id}
-                    deck={deck}
-                    onEdit={handleEditDeck}
-                    onDelete={handleDeleteDeck}
-                    onStudy={handleStudyDeck}
-                  />
+                    data-deck-id={deck.id}
+                    $isVisible={visibleCards.has(deck.id)}
+                  >
+                    <DeckCard
+                      deck={deck}
+                      onEdit={handleEditDeck}
+                      onDelete={handleDeleteDeck}
+                      onStudy={handleStudyDeck}
+                    />
+                  </DeckCardWrapper>
                 ))}
               </DecksGrid>
             )}
