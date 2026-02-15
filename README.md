@@ -1,73 +1,47 @@
-# React + TypeScript + Vite
+# QMemoryCards Frontend 🧠
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+QMemoryCards — это SPA-приложение для эффективного изучения информации по методу карточек. Пользователи могут создавать свои колоды, добавлять карточки с вопросами и ответами, изучать их с отслеживанием прогресса и делиться с другими через публичные ссылки.
 
-Currently, two official plugins are available:
+## 🛠 Стек технологий
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Babel](https://babeljs.io/) (or [oxc](https://oxc.rs) when used in [rolldown-vite](https://vite.dev/guide/rolldown)) for Fast Refresh
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/) for Fast Refresh
+| Категория | Технологии |
+|-----------|------------|
+| Язык | TypeScript 5.0+ |
+| Фреймворк | React 18, React Router 6 |
+| Сборка | Vite 5.0 |
+| Стили | Styled Components, Ant Design |
+| Состояние | React Query |
+| HTTP | Axios с interceptors |
+| Архитектура | Feature-Sliced Design (FSD) |
+| Инструменты | ESLint, Prettier |
 
-## React Compiler
+## 📁 Структура проекта (FSD)
+src/
+├── app/           # Роутинг, провайдеры
+├── entities/      # Бизнес-сущности (User, Deck, Card)
+├── features/      # Функциональные блоки, хуки
+├── pages/         # Страницы приложения
+├── shared/        # Переиспользуемые UI и утилиты
+├── widgets/       # Комплексные UI-блоки
 
-The React Compiler is not enabled on this template because of its impact on dev & build performances. To add it, see [this documentation](https://react.dev/learn/react-compiler/installation).
 
-## Expanding the ESLint configuration
+### Предварительные требования
+- Node.js 18+
+- Backend API на http://localhost:8080
 
-If you are developing a production application, we recommend updating the configuration to enable type-aware lint rules:
+### Установка# Клонировать репозиторий
+git clone <repository-url>
+cd QMemoryCards/frontend
 
-```js
-export default defineConfig([
-  globalIgnores(['dist']),
-  {
-    files: ['**/*.{ts,tsx}'],
-    extends: [
-      // Other configs...
+# Установить зависимости
+npm install
 
-      // Remove tseslint.configs.recommended and replace with this
-      tseslint.configs.recommendedTypeChecked,
-      // Alternatively, use this for stricter rules
-      tseslint.configs.strictTypeChecked,
-      // Optionally, add this for stylistic rules
-      tseslint.configs.stylisticTypeChecked,
+### Запуск# Development сервер
+npm run dev
 
-      // Other configs...
-    ],
-    languageOptions: {
-      parserOptions: {
-        project: ['./tsconfig.node.json', './tsconfig.app.json'],
-        tsconfigRootDir: import.meta.dirname,
-      },
-      // other options...
-    },
-  },
-])
-```
+# Build для продакшена
+npm run build
 
-You can also install [eslint-plugin-react-x](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-x) and [eslint-plugin-react-dom](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-dom) for React-specific lint rules:
-
-```js
-// eslint.config.js
-import reactX from 'eslint-plugin-react-x'
-import reactDom from 'eslint-plugin-react-dom'
-
-export default defineConfig([
-  globalIgnores(['dist']),
-  {
-    files: ['**/*.{ts,tsx}'],
-    extends: [
-      // Other configs...
-      // Enable lint rules for React
-      reactX.configs['recommended-typescript'],
-      // Enable lint rules for React DOM
-      reactDom.configs.recommended,
-    ],
-    languageOptions: {
-      parserOptions: {
-        project: ['./tsconfig.node.json', './tsconfig.app.json'],
-        tsconfigRootDir: import.meta.dirname,
-      },
-      // other options...
-    },
-  },
-])
-```
+# Lint и форматирование
+npm run lint
+npm run format
