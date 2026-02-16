@@ -1,7 +1,7 @@
-import { render, screen, fireEvent, waitFor } from '@testing-library/react';
-import { describe, it, expect, vi, beforeEach } from 'vitest';
+import { fireEvent, screen, waitFor } from '@testing-library/react';
+import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { DecksPage } from './DecksPage';
-import { BrowserRouter } from 'react-router-dom';
+import { renderWithRouter } from '@/test/utils.tsx';
 
 const mockNavigate = vi.fn();
 vi.mock('react-router-dom', async () => {
@@ -44,7 +44,7 @@ vi.mock('@features/decks', () => ({
   useDeleteDeck: () => ({
     deleteDeck: mockDeleteDeck,
   }),
-  CreateDeckModal: ({ isOpen, onClose, onSubmit, isLoading }: any) => (
+  CreateDeckModal: ({ isOpen, onClose, onSubmit, isLoading }: any) =>
     isOpen ? (
       <div data-testid="create-deck-modal">
         <button onClick={() => onSubmit({ name: 'New Deck', description: 'Description' })}>
@@ -52,8 +52,7 @@ vi.mock('@features/decks', () => ({
         </button>
         <button onClick={onClose}>Close</button>
       </div>
-    ) : null
-  ),
+    ) : null,
 }));
 
 vi.mock('@entities/deck', () => ({
@@ -73,7 +72,11 @@ vi.mock('@widgets/Header', () => ({
 }));
 
 vi.mock('@shared/ui', () => ({
-  Spinner: ({ size }: any) => <div data-testid="spinner" data-size={size}>Loading...</div>,
+  Spinner: ({ size }: any) => (
+    <div data-testid="spinner" data-size={size}>
+      Loading...
+    </div>
+  ),
 }));
 
 describe('DecksPage', () => {
@@ -116,11 +119,7 @@ describe('DecksPage', () => {
   });
 
   const renderDecksPage = () => {
-    return render(
-      <BrowserRouter>
-        <DecksPage />
-      </BrowserRouter>
-    );
+    return renderWithRouter(<DecksPage />);
   };
 
   it('shows loading spinner when loading', () => {
@@ -208,7 +207,9 @@ describe('DecksPage', () => {
     renderDecksPage();
 
     expect(screen.getByText('У вас пока нет колод')).toBeInTheDocument();
-    expect(screen.getByText('Создайте свою первую колоду, чтобы начать изучение')).toBeInTheDocument();
+    expect(
+      screen.getByText('Создайте свою первую колоду, чтобы начать изучение')
+    ).toBeInTheDocument();
     expect(screen.getByText('Создать первую колоду')).toBeInTheDocument();
   });
 
@@ -219,7 +220,9 @@ describe('DecksPage', () => {
     fireEvent.change(searchInput, { target: { value: 'NonExistentDeck' } });
 
     expect(screen.getByText('Ничего не найдено')).toBeInTheDocument();
-    expect(screen.getByText('Попробуйте изменить параметры поиска или фильтры')).toBeInTheDocument();
+    expect(
+      screen.getByText('Попробуйте изменить параметры поиска или фильтры')
+    ).toBeInTheDocument();
   });
 
   it('disables create button when totalElements >= 30', () => {

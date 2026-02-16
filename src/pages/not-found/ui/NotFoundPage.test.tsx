@@ -1,7 +1,7 @@
-import { render, screen, fireEvent } from '@testing-library/react';
-import { describe, it, expect, vi } from 'vitest';
+import { fireEvent, screen } from '@testing-library/react';
+import { describe, expect, it, vi } from 'vitest';
 import { NotFoundPage } from './NotFoundPage';
-import { BrowserRouter } from 'react-router-dom';
+import { renderWithRouter } from '@/test/utils.tsx';
 
 const mockNavigate = vi.fn();
 
@@ -15,12 +15,7 @@ vi.mock('react-router-dom', async () => {
 
 vi.mock('antd', () => ({
   Button: ({ children, onClick, icon, type, size }: any) => (
-    <button
-      onClick={onClick}
-      data-type={type}
-      data-size={size}
-      data-testid="antd-button"
-    >
+    <button onClick={onClick} data-type={type} data-size={size} data-testid="antd-button">
       {icon && <span data-testid="button-icon">{icon}</span>}
       {children}
     </button>
@@ -33,11 +28,7 @@ describe('NotFoundPage', () => {
   });
 
   const renderNotFoundPage = () => {
-    return render(
-      <BrowserRouter>
-        <NotFoundPage />
-      </BrowserRouter>
-    );
+    return renderWithRouter(<NotFoundPage />);
   };
 
   it('renders 404 page with all elements', () => {

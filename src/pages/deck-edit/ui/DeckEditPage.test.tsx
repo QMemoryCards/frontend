@@ -1,8 +1,8 @@
-import { render, screen, fireEvent, waitFor } from '@testing-library/react';
-import { describe, it, expect, vi, beforeEach } from 'vitest';
+import { fireEvent, screen, waitFor } from '@testing-library/react';
+import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { DeckEditPage } from './DeckEditPage';
-import { BrowserRouter } from 'react-router-dom';
 import { VALIDATION } from '@shared/config';
+import { renderWithRouter } from '@/test/utils.tsx';
 
 const mockNavigate = vi.fn();
 
@@ -39,7 +39,7 @@ vi.mock('antd', () => ({
       {children}
     </button>
   ),
-  Modal: ({ open, title, onCancel, footer, children }: any) => (
+  Modal: ({ open, title, onCancel, footer, children }: any) =>
     open ? (
       <div data-testid="share-modal">
         <h3>{title}</h3>
@@ -47,8 +47,7 @@ vi.mock('antd', () => ({
         <button onClick={onCancel}>Close</button>
         {footer}
       </div>
-    ) : null
-  ),
+    ) : null,
 }));
 
 const mockFetchDeck = vi.fn();
@@ -108,15 +107,14 @@ vi.mock('@features/cards', () => ({
   useDeleteCard: () => ({
     deleteCard: mockDeleteCard,
   }),
-  CreateCardModal: ({ isOpen, onClose, onSubmit, isLoading }: any) => (
+  CreateCardModal: ({ isOpen, onClose, onSubmit, isLoading }: any) =>
     isOpen ? (
       <div data-testid="create-card-modal">
         <button onClick={() => onSubmit({ question: 'Q', answer: 'A' })}>Submit</button>
         <button onClick={onClose}>Close</button>
       </div>
-    ) : null
-  ),
-  EditCardModal: ({ isOpen, card, onClose, onSubmit, isLoading }: any) => (
+    ) : null,
+  EditCardModal: ({ isOpen, card, onClose, onSubmit, isLoading }: any) =>
     isOpen ? (
       <div data-testid="edit-card-modal">
         <button onClick={() => onSubmit(card?.id, { question: 'Updated Q', answer: 'Updated A' })}>
@@ -124,8 +122,7 @@ vi.mock('@features/cards', () => ({
         </button>
         <button onClick={onClose}>Close</button>
       </div>
-    ) : null
-  ),
+    ) : null,
 }));
 
 vi.mock('@entities/card', () => ({
@@ -144,13 +141,14 @@ vi.mock('@widgets/Header', () => ({
 }));
 
 vi.mock('@shared/ui', () => ({
-  Input: ({ value, onChange, placeholder, disabled }: any) => (
+  Input: ({ value, onChange, placeholder, disabled, readOnly }: any) => (
     <input
       data-testid={`input-${placeholder}`}
       value={value}
       onChange={onChange}
       placeholder={placeholder}
       disabled={disabled}
+      readOnly={readOnly}
     />
   ),
   Spinner: () => <div data-testid="spinner">Loading...</div>,
@@ -159,8 +157,12 @@ vi.mock('@shared/ui', () => ({
 vi.mock('@shared/lib/validation', () => ({
   validateDeckName: (name: string) => ({
     isValid: name.length >= 3 && name.length <= 100,
-    error: name.length < 3 ? 'Название должно содержать минимум 3 символа' :
-      name.length > 100 ? 'Название слишком длинное' : '',
+    error:
+      name.length < 3
+        ? 'Название должно содержать минимум 3 символа'
+        : name.length > 100
+          ? 'Название слишком длинное'
+          : '',
   }),
   validateDeckDescription: (desc: string) => ({
     isValid: desc.length <= 500,
@@ -200,11 +202,7 @@ describe('DeckEditPage', () => {
   });
 
   const renderDeckEditPage = () => {
-    return render(
-      <BrowserRouter>
-        <DeckEditPage />
-      </BrowserRouter>
-    );
+    return renderWithRouter(<DeckEditPage />);
   };
 
   it('shows loading spinner when deck is loading', () => {
@@ -228,7 +226,9 @@ describe('DeckEditPage', () => {
 
     expect(screen.getByText('Редактирование колоды')).toBeInTheDocument();
     expect(screen.getByTestId('input-Введите название колоды')).toHaveValue('Test Deck');
-    expect(screen.getByTestId('input-Введите описание (необязательно)')).toHaveValue('Test Description');
+    expect(screen.getByTestId('input-Введите описание (необязательно)')).toHaveValue(
+      'Test Description'
+    );
   });
 
   it('navigates back when back button is clicked', () => {
@@ -247,7 +247,9 @@ describe('DeckEditPage', () => {
     expect(screen.getByText('Название должно содержать минимум 3 символа')).toBeInTheDocument();
 
     fireEvent.change(nameInput, { target: { value: 'Valid Name' } });
-    expect(screen.queryByText('Название должно содержать минимум 3 символа')).not.toBeInTheDocument();
+    expect(
+      screen.queryByText('Название должно содержать минимум 3 символа')
+    ).not.toBeInTheDocument();
   });
 
   it('validates deck description', () => {
@@ -318,36 +320,45 @@ describe('DeckEditPage', () => {
 
     // Используем функцию для поиска текста
     const nameCounter = screen.getByText((content, element) => {
-      return element?.tagName.toLowerCase() === 'span' &&
+      return (
+        element?.tagName.toLowerCase() === 'span' &&
         element?.className.includes('sc-kcLKEh') &&
         content.includes('9') &&
-        content.includes('90');
+        content.includes('90')
+      );
     });
     expect(nameCounter).toBeInTheDocument();
 
     const descCounter = screen.getByText((content, element) => {
-      return element?.tagName.toLowerCase() === 'span' &&
+      return (
+        element?.tagName.toLowerCase() === 'span' &&
         element?.className.includes('sc-kcLKEh') &&
         content.includes('16') &&
-        content.includes('200');
+        content.includes('200')
+      );
     });
     expect(descCounter).toBeInTheDocument();
-  });it('renders character counters', () => {
+  });
+  it('renders character counters', () => {
     renderDeckEditPage();
 
     const nameCounter = screen.getByText((content, element) => {
-      return element?.tagName.toLowerCase() === 'span' &&
+      return (
+        element?.tagName.toLowerCase() === 'span' &&
         element?.className.includes('sc-kcLKEh') &&
         content.includes('9') &&
-        content.includes('90');
+        content.includes('90')
+      );
     });
     expect(nameCounter).toBeInTheDocument();
 
     const descCounter = screen.getByText((content, element) => {
-      return element?.tagName.toLowerCase() === 'span' &&
+      return (
+        element?.tagName.toLowerCase() === 'span' &&
         element?.className.includes('sc-kcLKEh') &&
         content.includes('16') &&
-        content.includes('200');
+        content.includes('200')
+      );
     });
     expect(descCounter).toBeInTheDocument();
   });
@@ -405,7 +416,9 @@ describe('DeckEditPage', () => {
     mockCards = [];
     renderDeckEditPage();
 
-    expect(screen.getByText('Карточек пока нет. Создайте первую карточку для начала обучения.')).toBeInTheDocument();
+    expect(
+      screen.getByText('Карточек пока нет. Создайте первую карточку для начала обучения.')
+    ).toBeInTheDocument();
   });
 
   it('opens create card modal when add button is clicked', () => {

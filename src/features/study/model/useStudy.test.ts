@@ -1,6 +1,8 @@
-import { renderHook, waitFor, act } from '@testing-library/react';
-import { describe, it, expect, vi, beforeEach } from 'vitest';
+import { act, renderHook, waitFor } from '@testing-library/react';
+import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { useStudy } from './useStudy';
+import { message as mockMessage } from 'antd';
+import { studyApi } from '@entities/study';
 
 vi.mock('antd', () => ({
   message: {
@@ -10,8 +12,6 @@ vi.mock('antd', () => ({
     info: vi.fn(),
   },
 }));
-
-import { message as mockMessage } from 'antd';
 
 vi.mock('@entities/study', () => ({
   studyApi: {
@@ -26,8 +26,6 @@ vi.mock('@shared/api', () => ({
     statusCode: error.response?.status ?? 0,
   })),
 }));
-
-import { studyApi } from '@entities/study';
 
 describe('useStudy', () => {
   beforeEach(() => {

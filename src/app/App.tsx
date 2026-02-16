@@ -1,4 +1,4 @@
-import { ConfigProvider, App as AntdApp } from 'antd';
+import { App as AntdApp, ConfigProvider } from 'antd';
 import { AppRouter } from './routes';
 import { antdTheme } from '@shared/config';
 import { ErrorBoundary } from './providers';

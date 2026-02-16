@@ -1,5 +1,5 @@
-import { describe, it, expect } from 'vitest';
-import type { Card, CreateCardRequest, UpdateCardRequest, GetCardsResponse } from './types';
+import { describe, expect, it } from 'vitest';
+import type { Card, CreateCardRequest, GetCardsResponse, UpdateCardRequest } from './types';
 
 describe('Card types', () => {
   describe('Card', () => {

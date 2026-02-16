@@ -1,7 +1,6 @@
-import { render } from '@testing-library/react';
-import { describe, it, expect, vi } from 'vitest';
+import { describe, expect, it, vi } from 'vitest';
 import { LoginPage } from './LoginPage';
-import { BrowserRouter } from 'react-router-dom';
+import { renderWithRouter } from '@/test/utils.tsx';
 
 vi.mock('react-router-dom', async () => {
   const actual = await vi.importActual('react-router-dom');
@@ -24,29 +23,17 @@ vi.mock('antd', () => ({
 
 describe('LoginPage', () => {
   it('should render login page', () => {
-    const { container } = render(
-      <BrowserRouter>
-        <LoginPage />
-      </BrowserRouter>
-    );
+    const { container } = renderWithRouter(<LoginPage />);
     expect(container).toBeTruthy();
   });
 
   it('should render login form', () => {
-    const { container } = render(
-      <BrowserRouter>
-        <LoginPage />
-      </BrowserRouter>
-    );
+    const { container } = renderWithRouter(<LoginPage />);
     expect(container.querySelector('form')).toBeTruthy();
   });
 
   it('should render page content', () => {
-    const { container } = render(
-      <BrowserRouter>
-        <LoginPage />
-      </BrowserRouter>
-    );
+    const { container } = renderWithRouter(<LoginPage />);
     expect(container.textContent).toBeTruthy();
   });
 });

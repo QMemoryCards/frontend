@@ -1,13 +1,13 @@
-import { describe, it, expect, vi, beforeEach } from 'vitest';
+import { beforeEach, describe, expect, it, vi } from 'vitest';
 import {
   createDeck,
-  getDecks,
-  updateDeck,
   deleteDeck,
   getDeck,
-  shareDeck,
+  getDecks,
   getSharedDeck,
   importSharedDeck,
+  shareDeck,
+  updateDeck,
 } from './deckApi';
 import { apiClient } from '@shared/api';
 

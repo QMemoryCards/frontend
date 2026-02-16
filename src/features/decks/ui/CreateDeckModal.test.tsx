@@ -1,9 +1,9 @@
-import { render, screen, fireEvent, waitFor } from '@testing-library/react';
-import { describe, it, expect, vi, beforeEach } from 'vitest';
+import { fireEvent, render, screen, waitFor } from '@testing-library/react';
+import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { CreateDeckModal } from './CreateDeckModal';
 
 vi.mock('antd', () => ({
-  Modal: ({ open, title, onOk, onCancel, children, okButtonProps, confirmLoading }: any) => (
+  Modal: ({ open, title, onOk, onCancel, children, okButtonProps, confirmLoading }: any) =>
     open ? (
       <div data-testid="create-deck-modal">
         <h3>{title}</h3>
@@ -15,14 +15,26 @@ vi.mock('antd', () => ({
         >
           Создать
         </button>
-        <button data-testid="modal-cancel" onClick={onCancel}>Отмена</button>
+        <button data-testid="modal-cancel" onClick={onCancel}>
+          Отмена
+        </button>
       </div>
-    ) : null
-  ),
+    ) : null,
 }));
 
 vi.mock('@shared/ui', () => ({
-  Input: ({ value, onChange, onBlur, placeholder, disabled, label, error, helperText, maxLength, type }: any) => {
+  Input: ({
+    value,
+    onChange,
+    onBlur,
+    placeholder,
+    disabled,
+    label,
+    error,
+    helperText,
+    maxLength,
+    type,
+  }: any) => {
     const inputId = `input-${label?.replace(/[^a-zA-Z]/g, '')}`;
     return (
       <div data-testid="input-container">
@@ -48,8 +60,12 @@ vi.mock('@shared/ui', () => ({
 vi.mock('@shared/lib/validation', () => ({
   validateDeckName: (name: string) => ({
     isValid: name.length >= 3 && name.length <= 90,
-    error: name.length < 3 ? 'Название должно содержать минимум 3 символа' :
-      name.length > 90 ? 'Название слишком длинное' : '',
+    error:
+      name.length < 3
+        ? 'Название должно содержать минимум 3 символа'
+        : name.length > 90
+          ? 'Название слишком длинное'
+          : '',
   }),
   validateDeckDescription: (desc: string) => ({
     isValid: desc.length <= 200,
@@ -311,17 +327,19 @@ describe('CreateDeckModal', () => {
     renderCreateDeckModal();
 
     const nameCounter = screen.getByText((content, element) => {
-      return element?.tagName.toLowerCase() === 'span' &&
+      return (
+        element?.tagName.toLowerCase() === 'span' &&
         element?.getAttribute('data-testid') === 'helper-text' &&
         content.includes('0') &&
-        content.includes('90');
+        content.includes('90')
+      );
     });
     expect(nameCounter).toBeInTheDocument();
 
     const descCounter = screen.getByText((content, element) => {
-      return element?.className.includes('sc-jwTyAe') &&
-        content.includes('0') &&
-        content.includes('200');
+      return (
+        element?.className.includes('sc-jwTyAe') && content.includes('0') && content.includes('200')
+      );
     });
     expect(descCounter).toBeInTheDocument();
 
@@ -329,10 +347,12 @@ describe('CreateDeckModal', () => {
     fireEvent.change(inputField, { target: { value: 'Test Deck' } });
 
     const updatedNameCounter = screen.getByText((content, element) => {
-      return element?.tagName.toLowerCase() === 'span' &&
+      return (
+        element?.tagName.toLowerCase() === 'span' &&
         element?.getAttribute('data-testid') === 'helper-text' &&
         content.includes('9') &&
-        content.includes('90');
+        content.includes('90')
+      );
     });
     expect(updatedNameCounter).toBeInTheDocument();
 
@@ -340,9 +360,11 @@ describe('CreateDeckModal', () => {
     fireEvent.change(textarea, { target: { value: 'Test Description' } });
 
     const updatedDescCounter = screen.getByText((content, element) => {
-      return element?.className.includes('sc-jwTyAe') &&
+      return (
+        element?.className.includes('sc-jwTyAe') &&
         content.includes('16') &&
-        content.includes('200');
+        content.includes('200')
+      );
     });
     expect(updatedDescCounter).toBeInTheDocument();
   });
@@ -353,6 +375,8 @@ describe('CreateDeckModal', () => {
     expect(screen.getByText('Название *')).toBeInTheDocument();
     expect(screen.getByText('Описание')).toBeInTheDocument();
     expect(screen.getByPlaceholderText('Введите название колоды')).toBeInTheDocument();
-    expect(screen.getByPlaceholderText('Добавьте описание колоды (необязательно)')).toBeInTheDocument();
+    expect(
+      screen.getByPlaceholderText('Добавьте описание колоды (необязательно)')
+    ).toBeInTheDocument();
   });
 });

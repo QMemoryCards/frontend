@@ -1,4 +1,4 @@
-import { describe, it, expect } from 'vitest';
+import { describe, expect, it } from 'vitest';
 import * as cardsModelExports from './index';
 
 describe('features/cards/model index', () => {

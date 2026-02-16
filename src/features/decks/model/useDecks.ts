@@ -1,18 +1,18 @@
-import { useState, useEffect, useCallback } from 'react';
+import { useCallback, useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { App } from 'antd';
 import { AxiosError } from 'axios';
+import type { CreateDeckRequest, DeckDetails, UpdateDeckRequest } from '@entities/deck';
 import {
   createDeck,
-  getDeck,
-  updateDeck,
   deleteDeck,
+  getDeck,
   getDecks,
-  ShareDeckResponse,
-  SharedDeck,
   ImportSharedDeckRequest,
+  SharedDeck,
+  ShareDeckResponse,
+  updateDeck,
 } from '@entities/deck';
-import type { CreateDeckRequest, UpdateDeckRequest, DeckDetails } from '@entities/deck';
 import { handleApiError } from '@shared/api';
 import { ROUTES } from '@shared/config';
 import { getSharedDeck, importSharedDeck, shareDeck } from '@entities/deck/api/deckApi.ts';

@@ -1,15 +1,17 @@
-import { renderHook, waitFor } from '@testing-library/react';
-import { describe, it, expect, vi, beforeEach } from 'vitest';
+import { act, renderHook, waitFor } from '@testing-library/react';
+import { beforeEach, describe, expect, it, vi } from 'vitest';
 import {
-  useDecks,
   useCreateDeck,
-  useGetDeck,
-  useUpdateDeck,
+  useDecks,
   useDeleteDeck,
-  useShareDeck,
-  useSharedDeck,
+  useGetDeck,
   useImportSharedDeck,
+  useSharedDeck,
+  useShareDeck,
+  useUpdateDeck,
 } from './useDecks';
+import * as deckApi from '@entities/deck';
+import * as deckApiFile from '@entities/deck/api/deckApi';
 
 const mockNavigate = vi.fn();
 const mockMessage = {
@@ -56,9 +58,6 @@ vi.mock('@shared/config', () => ({
     DECKS: '/decks',
   },
 }));
-
-import * as deckApi from '@entities/deck';
-import * as deckApiFile from '@entities/deck/api/deckApi';
 
 describe('useDecks hooks', () => {
   beforeEach(() => {
@@ -202,7 +201,7 @@ describe('useDecks hooks', () => {
 
       const { result } = renderHook(() => useGetDeck());
 
-      await waitFor(async () => {
+      await act(async () => {
         await result.current.fetchDeck('1');
       });
 
@@ -219,7 +218,7 @@ describe('useDecks hooks', () => {
 
       const { result } = renderHook(() => useGetDeck());
 
-      await waitFor(async () => {
+      await act(async () => {
         await result.current.fetchDeck('999');
       });
 
@@ -285,7 +284,7 @@ describe('useDecks hooks', () => {
 
       const { result } = renderHook(() => useDeleteDeck());
 
-      await waitFor(async () => {
+      await act(async () => {
         await result.current.deleteDeck('1');
       });
 
@@ -302,7 +301,7 @@ describe('useDecks hooks', () => {
 
       const { result } = renderHook(() => useDeleteDeck());
 
-      await waitFor(async () => {
+      await act(async () => {
         await result.current.deleteDeck('999');
       });
 
@@ -319,8 +318,10 @@ describe('useDecks hooks', () => {
 
       const { result } = renderHook(() => useShareDeck());
 
-      const sharePromise = result.current.shareDeck('1');
-      const shareResult = await sharePromise;
+      let shareResult;
+      await act(async () => {
+        shareResult = await result.current.shareDeck('1');
+      });
 
       expect(shareResult).toEqual(mockShareData);
       expect(mockMessage.success).toHaveBeenCalledWith('Ссылка для общего доступа создана');
@@ -337,7 +338,10 @@ describe('useDecks hooks', () => {
 
       const { result } = renderHook(() => useShareDeck());
 
-      const shareResult = await result.current.shareDeck('1');
+      let shareResult;
+      await act(async () => {
+        shareResult = await result.current.shareDeck('1');
+      });
 
       expect(shareResult).toBeNull();
       expect(mockMessage.error).toHaveBeenCalledWith('Пользователь не авторизован');
@@ -350,7 +354,10 @@ describe('useDecks hooks', () => {
 
       const { result } = renderHook(() => useShareDeck());
 
-      const shareResult = await result.current.shareDeck('1');
+      let shareResult;
+      await act(async () => {
+        shareResult = await result.current.shareDeck('1');
+      });
 
       expect(shareResult).toBeNull();
       expect(mockMessage.error).toHaveBeenCalledWith('Доступ запрещен');
@@ -369,7 +376,9 @@ describe('useDecks hooks', () => {
 
       const { result } = renderHook(() => useSharedDeck());
 
-      await result.current.fetchSharedDeck('token-123');
+      await act(async () => {
+        await result.current.fetchSharedDeck('token-123');
+      });
 
       await waitFor(() => {
         expect(result.current.deck).toEqual(mockSharedDeck);
@@ -384,7 +393,9 @@ describe('useDecks hooks', () => {
 
       const { result } = renderHook(() => useSharedDeck());
 
-      await result.current.fetchSharedDeck('invalid-token');
+      await act(async () => {
+        await result.current.fetchSharedDeck('invalid-token');
+      });
 
       await waitFor(() => {
         expect(mockMessage.error).toHaveBeenCalledWith('Колода не найдена или ссылка устарела');
@@ -410,8 +421,9 @@ describe('useDecks hooks', () => {
 
       const { result } = renderHook(() => useImportSharedDeck());
 
-      const importResult = await result.current.importDeck('token-123', {
-        name: 'My Imported Deck',
+      let importResult;
+      await act(async () => {
+        importResult = await result.current.importDeck('token-123');
       });
 
       expect(importResult).toEqual(mockImportedDeck);
@@ -429,7 +441,10 @@ describe('useDecks hooks', () => {
 
       const { result } = renderHook(() => useImportSharedDeck());
 
-      const importResult = await result.current.importDeck('token-123');
+      let importResult;
+      await act(async () => {
+        importResult = await result.current.importDeck('token-123');
+      });
 
       expect(importResult).toBeNull();
       expect(mockMessage.error).toHaveBeenCalledWith('Колода с таким названием уже существует');
@@ -442,7 +457,10 @@ describe('useDecks hooks', () => {
 
       const { result } = renderHook(() => useImportSharedDeck());
 
-      const importResult = await result.current.importDeck('token-123');
+      let importResult;
+      await act(async () => {
+        importResult = await result.current.importDeck('token-123');
+      });
 
       expect(importResult).toBeNull();
       expect(mockMessage.error).toHaveBeenCalledWith('Не авторизован');

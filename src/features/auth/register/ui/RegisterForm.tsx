@@ -1,15 +1,15 @@
-import React, { useState, useEffect } from 'react';
+import React, { useEffect, useState } from 'react';
 import { Input, Spinner } from '@shared/ui';
 import { ROUTES } from '@shared/config';
 import { validateEmail, validateLogin, validatePassword } from '@shared/lib/validation';
 import { useRegister } from '../model/useRegister';
 import {
+  ErrorMessage,
   FormContainer,
+  LoginLink,
   PasswordRequirements,
   RequirementItem,
   SubmitButton,
-  ErrorMessage,
-  LoginLink,
 } from './RegisterForm.styles';
 
 export const RegisterForm: React.FC = () => {

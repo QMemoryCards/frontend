@@ -1,6 +1,8 @@
 import { renderHook, waitFor } from '@testing-library/react';
-import { describe, it, expect, vi, beforeEach } from 'vitest';
-import { useCards, useCreateCard, useUpdateCard, useDeleteCard } from './useCards';
+import { beforeEach, describe, expect, it, vi } from 'vitest';
+import { useCards, useCreateCard, useDeleteCard, useUpdateCard } from './useCards';
+import { cardApi } from '@entities/card';
+import { message } from 'antd';
 
 vi.mock('antd', () => ({
   message: {
@@ -33,9 +35,6 @@ vi.mock('@shared/config', () => ({
     },
   },
 }));
-
-import { cardApi } from '@entities/card';
-import { message } from 'antd';
 
 describe('useCards', () => {
   const deckId = 'deck-123';

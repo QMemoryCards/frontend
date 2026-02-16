@@ -1,5 +1,5 @@
-import { describe, it, expect } from 'vitest';
-import { validatePassword, getPasswordRequirements } from './password';
+import { describe, expect, it } from 'vitest';
+import { getPasswordRequirements, validatePassword } from './password';
 
 describe('validatePassword', () => {
   it('should return error for empty password', () => {

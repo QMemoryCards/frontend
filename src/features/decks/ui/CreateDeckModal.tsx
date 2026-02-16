@@ -1,7 +1,7 @@
-import React, { useState, useEffect } from 'react';
+import React, { useEffect, useState } from 'react';
 import { Modal } from 'antd';
 import { Input } from '@shared/ui';
-import { validateDeckName, validateDeckDescription } from '@shared/lib/validation';
+import { validateDeckDescription, validateDeckName } from '@shared/lib/validation';
 import type { CreateDeckRequest } from '@entities/deck';
 import styled from 'styled-components';
 

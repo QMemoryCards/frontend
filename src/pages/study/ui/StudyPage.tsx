@@ -1,9 +1,9 @@
 import React, { useEffect } from 'react';
-import { useParams, useNavigate } from 'react-router-dom';
+import { useNavigate, useParams } from 'react-router-dom';
 import styled from 'styled-components';
 import { App, Progress } from 'antd';
 import { ArrowLeftOutlined, CheckOutlined, CloseOutlined } from '@ant-design/icons';
-import { useStudy, StudyCard } from '@features/study';
+import { StudyCard, useStudy } from '@features/study';
 import { useGetDeck } from '@features/decks';
 import { Spinner } from '@shared/ui';
 import { ROUTES } from '@shared/config';

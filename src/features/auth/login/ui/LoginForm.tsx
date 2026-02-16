@@ -1,9 +1,9 @@
-import React, { useState, useEffect } from 'react';
+import React, { useEffect, useState } from 'react';
 import { Input, Spinner } from '@shared/ui';
 import { ROUTES } from '@shared/config';
 import { validateLogin, validatePassword } from '@shared/lib/validation';
 import { useLogin } from '../model/useLogin';
-import { FormContainer, SubmitButton, ErrorMessage, RegisterLink } from './LoginForm.styles';
+import { ErrorMessage, FormContainer, RegisterLink, SubmitButton } from './LoginForm.styles';
 
 export const LoginForm: React.FC = () => {
   const { login, isLoading, error } = useLogin();

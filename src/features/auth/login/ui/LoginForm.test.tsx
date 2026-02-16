@@ -1,7 +1,6 @@
-import { render } from '@testing-library/react';
-import { describe, it, expect, vi } from 'vitest';
+import { describe, expect, it, vi } from 'vitest';
 import { LoginForm } from './LoginForm';
-import { BrowserRouter } from 'react-router-dom';
+import { renderWithRouter } from '@/test/utils.tsx';
 
 vi.mock('react-router-dom', async () => {
   const actual = await vi.importActual('react-router-dom');
@@ -24,38 +23,22 @@ vi.mock('antd', () => ({
 
 describe('LoginForm', () => {
   it('should render login form', () => {
-    const { container } = render(
-      <BrowserRouter>
-        <LoginForm />
-      </BrowserRouter>
-    );
+    const { container } = renderWithRouter(<LoginForm />);
     expect(container.querySelector('form')).toBeTruthy();
   });
 
   it('should render input fields', () => {
-    const { container } = render(
-      <BrowserRouter>
-        <LoginForm />
-      </BrowserRouter>
-    );
+    const { container } = renderWithRouter(<LoginForm />);
     expect(container.querySelectorAll('input').length).toBeGreaterThan(0);
   });
 
   it('should render submit button', () => {
-    const { container } = render(
-      <BrowserRouter>
-        <LoginForm />
-      </BrowserRouter>
-    );
+    const { container } = renderWithRouter(<LoginForm />);
     expect(container.querySelector('button')).toBeTruthy();
   });
 
   it('should render form element', () => {
-    const { container } = render(
-      <BrowserRouter>
-        <LoginForm />
-      </BrowserRouter>
-    );
+    const { container } = renderWithRouter(<LoginForm />);
     const form = container.querySelector('form');
     expect(form).toBeTruthy();
   });

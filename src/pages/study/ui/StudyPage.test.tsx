@@ -1,8 +1,8 @@
-import { render, screen, fireEvent, waitFor } from '@testing-library/react';
-import { describe, it, expect, vi, beforeEach } from 'vitest';
+import { fireEvent, screen } from '@testing-library/react';
+import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { StudyPage } from './StudyPage';
-import { BrowserRouter } from 'react-router-dom';
 import { ROUTES } from '@shared/config';
+import { renderWithRouter } from '@/test/utils.tsx';
 
 const mockNavigate = vi.fn();
 const mockParams = { id: '1' };
@@ -112,11 +112,7 @@ describe('StudyPage', () => {
   });
 
   const renderStudyPage = () => {
-    return render(
-      <BrowserRouter>
-        <StudyPage />
-      </BrowserRouter>
-    );
+    return renderWithRouter(<StudyPage />);
   };
 
   it('renders loading spinner when loading and no cards', () => {

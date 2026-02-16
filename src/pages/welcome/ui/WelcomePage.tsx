@@ -3,13 +3,13 @@ import { useNavigate } from 'react-router-dom';
 import { Button } from '@shared/ui';
 import { ROUTES } from '@shared/config';
 import {
-  WelcomeContainer,
-  ContentWrapper,
-  LogoContainer,
-  Logo,
-  Title,
-  Subtitle,
   ButtonsContainer,
+  ContentWrapper,
+  Logo,
+  LogoContainer,
+  Subtitle,
+  Title,
+  WelcomeContainer,
 } from './WelcomePage.styles';
 
 export const WelcomePage: React.FC = () => {

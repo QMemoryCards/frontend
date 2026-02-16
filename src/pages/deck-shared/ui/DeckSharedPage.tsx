@@ -1,10 +1,10 @@
 import React, { useEffect, useState } from 'react';
-import { useParams, useNavigate } from 'react-router-dom';
+import { useNavigate, useParams } from 'react-router-dom';
 import styled from 'styled-components';
-import { Button, Modal, Input } from 'antd';
-import { DownloadOutlined, CheckOutlined } from '@ant-design/icons';
+import { Button, Input, Modal } from 'antd';
+import { CheckOutlined, DownloadOutlined } from '@ant-design/icons';
 import { Spinner } from '@shared/ui';
-import { validateDeckName, validateDeckDescription } from '@shared/lib/validation';
+import { validateDeckDescription, validateDeckName } from '@shared/lib/validation';
 import { VALIDATION } from '@shared/config';
 import { useImportSharedDeck, useSharedDeck } from '@features/decks/model/useDecks.ts';
 

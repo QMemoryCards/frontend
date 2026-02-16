@@ -1,12 +1,11 @@
-import React, { useState, useMemo, useEffect } from 'react';
+import React, { useEffect, useMemo, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import styled from 'styled-components';
 import { App } from 'antd';
 import { PlusOutlined, SearchOutlined } from '@ant-design/icons';
+import type { CreateDeckRequest, DeckDetails } from '@entities/deck';
 import { DeckCard } from '@entities/deck';
-import type { DeckDetails, CreateDeckRequest } from '@entities/deck';
-import { useDecks, useCreateDeck, useDeleteDeck } from '@features/decks';
-import { CreateDeckModal } from '@features/decks';
+import { CreateDeckModal, useCreateDeck, useDecks, useDeleteDeck } from '@features/decks';
 import { Spinner } from '@shared/ui';
 import { Header } from '@widgets/Header';
 

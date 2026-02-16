@@ -1,5 +1,5 @@
-import { describe, it, expect } from 'vitest';
-import { validateDeckName, validateDeckDescription } from './deck';
+import { describe, expect, it } from 'vitest';
+import { validateDeckDescription, validateDeckName } from './deck';
 
 describe('validateDeckName', () => {
   it('should return error for empty name', () => {

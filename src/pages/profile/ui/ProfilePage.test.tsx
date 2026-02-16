@@ -1,8 +1,8 @@
-import { render, screen, fireEvent, waitFor } from '@testing-library/react';
-import { describe, it, expect, vi, beforeEach } from 'vitest';
+import { fireEvent, screen, waitFor } from '@testing-library/react';
+import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { ProfilePage } from './ProfilePage';
-import { BrowserRouter } from 'react-router-dom';
 import { VALIDATION } from '@shared/config';
+import { renderWithRouter } from '@/test/utils.tsx';
 
 const mockNavigate = vi.fn();
 vi.mock('react-router-dom', async () => {
@@ -101,11 +101,7 @@ describe('ProfilePage', () => {
   });
 
   const renderProfilePage = () => {
-    return render(
-      <BrowserRouter>
-        <ProfilePage />
-      </BrowserRouter>
-    );
+    return renderWithRouter(<ProfilePage />);
   };
 
   it('shows loading spinner when loading user data', () => {
@@ -186,8 +182,9 @@ describe('ProfilePage', () => {
     });
 
     it('calls updateUser with new data when form is valid', async () => {
-      mockUpdateUser.mockResolvedValue({ user: { ...mockUser, email: 'new@example.com', login: 'newlogin' } });
-
+      mockUpdateUser.mockResolvedValue({
+        user: { ...mockUser, email: 'new@example.com', login: 'newlogin' },
+      });
 
       renderProfilePage();
       fireEvent.click(screen.getByText('Изменить данные'));
@@ -202,8 +199,15 @@ describe('ProfilePage', () => {
       fireEvent.click(screen.getByText('Сохранить изменения'));
 
       await waitFor(() => {
-        expect(mockUpdateUser).toHaveBeenCalledWith({ email: 'new@example.com', login: 'newlogin' });
-        expect(mockSetUser).toHaveBeenCalledWith({ ...mockUser, email: 'new@example.com', login: 'newlogin' });
+        expect(mockUpdateUser).toHaveBeenCalledWith({
+          email: 'new@example.com',
+          login: 'newlogin',
+        });
+        expect(mockSetUser).toHaveBeenCalledWith({
+          ...mockUser,
+          email: 'new@example.com',
+          login: 'newlogin',
+        });
         expect(mockMessageSuccess).toHaveBeenCalledWith('Данные успешно обновлены');
       });
 
@@ -297,7 +301,9 @@ describe('ProfilePage', () => {
       fireEvent.click(screen.getByText('Изменить пароль'));
 
       await waitFor(() => {
-        expect(screen.getByText('Пароль должен содержать минимум одну заглавную букву')).toBeInTheDocument();
+        expect(
+          screen.getByText('Пароль должен содержать минимум одну заглавную букву')
+        ).toBeInTheDocument();
       });
     });
 

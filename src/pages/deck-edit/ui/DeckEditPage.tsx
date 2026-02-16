@@ -1,23 +1,28 @@
-import React, { useState, useEffect } from 'react';
-import { useParams, useNavigate } from 'react-router-dom';
+import React, { useEffect, useState } from 'react';
+import { useNavigate, useParams } from 'react-router-dom';
 import styled from 'styled-components';
-import { App, Modal, Button } from 'antd';
+import { App, Button, Modal } from 'antd';
 import {
-  PlusOutlined,
   ArrowLeftOutlined,
+  CopyOutlined,
+  PlusOutlined,
   SaveOutlined,
   ShareAltOutlined,
-  CopyOutlined,
 } from '@ant-design/icons';
-import { Input } from '@shared/ui';
-import { CardItem } from '@entities/card';
+import { Input, Spinner } from '@shared/ui';
 import type { Card, CreateCardRequest, UpdateCardRequest } from '@entities/card';
+import { CardItem } from '@entities/card';
 import { useGetDeck, useUpdateDeck } from '@features/decks';
-import { useCards, useCreateCard, useUpdateCard, useDeleteCard } from '@features/cards';
-import { CreateCardModal, EditCardModal } from '@features/cards';
-import { validateDeckName, validateDeckDescription } from '@shared/lib/validation';
+import {
+  CreateCardModal,
+  EditCardModal,
+  useCards,
+  useCreateCard,
+  useDeleteCard,
+  useUpdateCard,
+} from '@features/cards';
+import { validateDeckDescription, validateDeckName } from '@shared/lib/validation';
 import { VALIDATION } from '@shared/config';
-import { Spinner } from '@shared/ui';
 import { useShareDeck } from '@features/decks/model/useDecks.ts';
 import { Header as AppHeader } from '@widgets/Header';
 

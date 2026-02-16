@@ -1,6 +1,6 @@
 import React from 'react';
 import styled from 'styled-components';
-import { EditOutlined, DeleteOutlined } from '@ant-design/icons';
+import { DeleteOutlined, EditOutlined } from '@ant-design/icons';
 import type { Card } from '../model/types';
 
 interface CardItemProps {

@@ -1,5 +1,5 @@
-import { describe, it, expect } from 'vitest';
-import type { Deck, CreateDeckRequest, DeckDetails } from './types';
+import { describe, expect, it } from 'vitest';
+import type { CreateDeckRequest, Deck, DeckDetails } from './types';
 
 describe('Deck types', () => {
   describe('Deck', () => {

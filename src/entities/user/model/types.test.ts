@@ -1,10 +1,10 @@
-import { describe, it, expect } from 'vitest';
+import { describe, expect, it } from 'vitest';
 import type {
-  User,
-  RegisterRequest,
-  LoginRequest,
-  UpdateUserRequest,
   ChangePasswordRequest,
+  LoginRequest,
+  RegisterRequest,
+  UpdateUserRequest,
+  User,
 } from './types';
 
 describe('User types', () => {

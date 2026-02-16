@@ -1,5 +1,5 @@
-import { describe, it, expect, vi, beforeEach } from 'vitest';
-import { registerUser, loginUser, logoutUser, checkEmailUnique, checkLoginUnique } from './authApi';
+import { beforeEach, describe, expect, it, vi } from 'vitest';
+import { checkEmailUnique, checkLoginUnique, loginUser, logoutUser, registerUser } from './authApi';
 import { apiClient } from '@shared/api';
 
 vi.mock('@shared/api', () => ({

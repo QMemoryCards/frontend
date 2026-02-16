@@ -1,20 +1,26 @@
-import { describe, it, expect, beforeEach, vi, afterEach } from 'vitest';
+import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import {
   getToken,
-  setToken,
   removeToken,
+  setToken,
   setupRequestInterceptor,
   setupResponseInterceptor,
 } from './interceptors';
-import type { AxiosInstance, InternalAxiosRequestConfig, AxiosResponse, AxiosError } from 'axios';
+import type { AxiosError, AxiosInstance, AxiosResponse, InternalAxiosRequestConfig } from 'axios';
 
 const localStorageMock = (() => {
   let store: Record<string, string> = {};
   return {
     getItem: vi.fn((key: string) => store[key] || null),
-    setItem: vi.fn((key: string, value: string) => { store[key] = value; }),
-    removeItem: vi.fn((key: string) => { delete store[key]; }),
-    clear: vi.fn(() => { store = {}; }),
+    setItem: vi.fn((key: string, value: string) => {
+      store[key] = value;
+    }),
+    removeItem: vi.fn((key: string) => {
+      delete store[key];
+    }),
+    clear: vi.fn(() => {
+      store = {};
+    }),
   };
 })();
 
@@ -186,12 +192,19 @@ describe('interceptors', () => {
 
     describe('403 Forbidden', () => {
       it('should remove token and redirect to login for non-password-change endpoints', async () => {
+        const consoleSpy = vi.spyOn(console, 'error').mockImplementation(() => {});
+
         const error = {
           response: { status: 403 },
           config: { url: '/api/decks' },
         } as AxiosError;
 
-        await expect(responseInterceptor.rejected(error)).rejects.toBe(error);
+        try {
+          await expect(responseInterceptor.rejected(error)).rejects.toBe(error);
+        } finally {
+          consoleSpy.mockRestore();
+        }
+
         expect(localStorageMock.removeItem).toHaveBeenCalledWith(TOKEN_KEY);
         expect(mockLocation.href).toBe('/login');
       });

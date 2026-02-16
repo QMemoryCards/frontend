@@ -1,8 +1,8 @@
-import { useState, useCallback } from 'react';
+import { useCallback, useState } from 'react';
 import { message } from 'antd';
 import { AxiosError } from 'axios';
+import type { ChangePasswordRequest, UpdateUserRequest, User } from '@entities/user';
 import { userApi } from '@entities/user';
-import type { User, UpdateUserRequest, ChangePasswordRequest } from '@entities/user';
 import { handleApiError } from '@shared/api';
 
 export const useGetUser = () => {

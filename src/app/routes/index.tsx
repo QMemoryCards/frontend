@@ -1,4 +1,4 @@
-import React, { useEffect, lazy, Suspense } from 'react';
+import React, { lazy, Suspense, useEffect } from 'react';
 import { createBrowserRouter, RouterProvider } from 'react-router-dom';
 import { App } from 'antd';
 import { Spinner } from '@shared/ui';
@@ -93,7 +93,8 @@ const router = createBrowserRouter([
         <SharedDeckPage />
       </Suspense>
     ),
-  },  {
+  },
+  {
     path: '*',
     element: <NotFoundPage />,
   },

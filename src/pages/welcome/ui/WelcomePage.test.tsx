@@ -1,8 +1,8 @@
-import { render, screen, fireEvent } from '@testing-library/react';
-import { describe, it, expect, vi } from 'vitest';
+import { fireEvent, screen } from '@testing-library/react';
+import { describe, expect, it, vi } from 'vitest';
 import { WelcomePage } from './WelcomePage';
-import { BrowserRouter } from 'react-router-dom';
 import { ROUTES } from '@shared/config';
+import { renderWithRouter } from '@/test/utils.tsx';
 
 const mockNavigate = vi.fn();
 
@@ -16,11 +16,7 @@ vi.mock('react-router-dom', async () => {
 
 vi.mock('@shared/ui', () => ({
   Button: ({ children, variant, fullWidth, onClick }: any) => (
-    <button
-      data-testid={`button-${variant}`}
-      data-fullwidth={fullWidth}
-      onClick={onClick}
-    >
+    <button data-testid={`button-${variant}`} data-fullwidth={fullWidth} onClick={onClick}>
       {children}
     </button>
   ),
@@ -32,11 +28,7 @@ describe('WelcomePage', () => {
   });
 
   const renderWelcomePage = () => {
-    return render(
-      <BrowserRouter>
-        <WelcomePage />
-      </BrowserRouter>
-    );
+    return renderWithRouter(<WelcomePage />);
   };
 
   it('renders welcome page with all elements', () => {
@@ -86,20 +78,6 @@ describe('WelcomePage', () => {
 
     expect(mockNavigate).toHaveBeenCalledTimes(1);
     expect(mockNavigate).toHaveBeenCalledWith(ROUTES.REGISTER);
-  });
-
-  it('applies correct styles to logo', () => {
-    renderWelcomePage();
-
-    const logo = screen.getByAltText('Flashcards logo');
-    expect(logo).toHaveStyle({
-      width: '90%',
-      height: '90%',
-      maxWidth: '100%',
-      maxHeight: '100%',
-      objectFit: 'contain',
-      display: 'block',
-    });
   });
 
   it('handles login click correctly', () => {

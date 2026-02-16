@@ -1,13 +1,12 @@
 import { fireEvent, render, screen } from '@testing-library/react';
 import { ErrorBoundary } from './ErrorBoundary';
-import { describe, it, expect } from 'vitest';
+import { describe, expect, it } from 'vitest';
 
 const ThrowError = () => {
   throw new Error('Test error');
 };
 
 const NormalChild = () => <div>Normal child</div>;
-
 
 describe('ErrorBoundary', () => {
   it('should render children when no error', () => {
@@ -145,7 +144,9 @@ describe('ErrorBoundary', () => {
 
       await screen.findByRole('button', { name: /Перезагрузить страницу/i });
 
-      expect(screen.queryByText(/Детали ошибки \(только в режиме разработки\)/i)).not.toBeInTheDocument();
+      expect(
+        screen.queryByText(/Детали ошибки \(только в режиме разработки\)/i)
+      ).not.toBeInTheDocument();
 
       consoleErrorSpy.mockRestore();
     });

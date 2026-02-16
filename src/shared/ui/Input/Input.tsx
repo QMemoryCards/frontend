@@ -1,6 +1,6 @@
 import React, { InputHTMLAttributes, useState } from 'react';
 import styled from 'styled-components';
-import { EyeOutlined, EyeInvisibleOutlined } from '@ant-design/icons';
+import { EyeInvisibleOutlined, EyeOutlined } from '@ant-design/icons';
 
 interface InputProps extends InputHTMLAttributes<HTMLInputElement> {
   label?: string;

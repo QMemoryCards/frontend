@@ -1,5 +1,5 @@
-import { render, screen, fireEvent } from '@testing-library/react';
-import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
+import { fireEvent, render, screen } from '@testing-library/react';
+import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { DeckCard } from './DeckCard';
 import type { DeckDetails } from '../model/types';
 
@@ -78,9 +78,7 @@ describe('DeckCard', () => {
 
   it('calls onClick when card is clicked', () => {
     const onClick = vi.fn();
-    render(
-      <DeckCard deck={baseDeck} onEdit={vi.fn()} onDelete={vi.fn()} onClick={onClick} />
-    );
+    render(<DeckCard deck={baseDeck} onEdit={vi.fn()} onDelete={vi.fn()} onClick={onClick} />);
 
     fireEvent.click(screen.getByText('Test Deck'));
 
@@ -99,9 +97,7 @@ describe('DeckCard', () => {
 
   it('calls onStudy when study button is clicked and onStudy is provided', () => {
     const onStudy = vi.fn();
-    render(
-      <DeckCard deck={baseDeck} onEdit={vi.fn()} onDelete={vi.fn()} onStudy={onStudy} />
-    );
+    render(<DeckCard deck={baseDeck} onEdit={vi.fn()} onDelete={vi.fn()} onStudy={onStudy} />);
 
     const studyButton = screen.getByRole('button', { name: /изучить/i });
     fireEvent.click(studyButton);

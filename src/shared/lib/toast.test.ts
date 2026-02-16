@@ -1,11 +1,11 @@
-import { describe, it, expect, beforeEach, vi } from 'vitest';
+import { beforeEach, describe, expect, it, vi } from 'vitest';
 import {
   setGlobalMessage,
-  showToast,
-  showSuccess,
   showError,
-  showWarning,
   showInfo,
+  showSuccess,
+  showToast,
+  showWarning,
 } from './toast';
 
 describe('toast utilities', () => {

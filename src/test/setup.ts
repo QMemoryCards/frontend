@@ -1,6 +1,24 @@
-import { expect, afterEach, vi } from 'vitest';
+import { afterEach, vi } from 'vitest';
 import { cleanup } from '@testing-library/react';
 import '@testing-library/jest-dom/vitest';
+
+Object.defineProperty(window, 'getComputedStyle', {
+  value: () => ({
+    getPropertyValue: () => '',
+    paddingLeft: '0px',
+    paddingRight: '0px',
+    paddingTop: '0px',
+    paddingBottom: '0px',
+    marginLeft: '0px',
+    marginRight: '0px',
+    marginTop: '0px',
+    marginBottom: '0px',
+    borderLeftWidth: '0px',
+    borderRightWidth: '0px',
+    borderTopWidth: '0px',
+    borderBottomWidth: '0px',
+  }),
+});
 
 afterEach(() => {
   cleanup();

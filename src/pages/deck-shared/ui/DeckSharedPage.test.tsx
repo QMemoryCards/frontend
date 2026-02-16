@@ -1,8 +1,8 @@
-import { render, screen, fireEvent, waitFor } from '@testing-library/react';
-import { describe, it, expect, vi, beforeEach } from 'vitest';
+import { fireEvent, screen, waitFor } from '@testing-library/react';
+import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { SharedDeckPage } from './DeckSharedPage';
-import { BrowserRouter, useParams } from 'react-router-dom';
 import { VALIDATION } from '@shared/config';
+import { renderWithRouter } from '@/test/utils.tsx';
 
 const mockNavigate = vi.fn();
 
@@ -19,7 +19,7 @@ const mockModalOnOk = vi.fn();
 const mockModalOnCancel = vi.fn();
 
 vi.mock('antd', () => ({
-  Modal: ({ open, title, onOk, onCancel, children, okButtonProps, confirmLoading }: any) => (
+  Modal: ({ open, title, onOk, onCancel, children, okButtonProps, confirmLoading }: any) =>
     open ? (
       <div data-testid="import-modal">
         <h3>{title}</h3>
@@ -31,17 +31,13 @@ vi.mock('antd', () => ({
         >
           Импортировать
         </button>
-        <button data-testid="modal-cancel" onClick={onCancel}>Отмена</button>
+        <button data-testid="modal-cancel" onClick={onCancel}>
+          Отмена
+        </button>
       </div>
-    ) : null
-  ),
+    ) : null,
   Button: ({ children, onClick, disabled, icon, type }: any) => (
-    <button
-      onClick={onClick}
-      disabled={disabled}
-      data-type={type}
-      data-testid="button"
-    >
+    <button onClick={onClick} disabled={disabled} data-type={type} data-testid="button">
       {icon && <span data-testid="button-icon">{icon}</span>}
       {children}
     </button>
@@ -87,8 +83,12 @@ vi.mock('@shared/ui', () => ({
 vi.mock('@shared/lib/validation', () => ({
   validateDeckName: (name: string) => ({
     isValid: name.length >= 3 && name.length <= 100,
-    error: name.length < 3 ? 'Название должно содержать минимум 3 символа' :
-      name.length > 100 ? 'Название слишком длинное' : '',
+    error:
+      name.length < 3
+        ? 'Название должно содержать минимум 3 символа'
+        : name.length > 100
+          ? 'Название слишком длинное'
+          : '',
   }),
   validateDeckDescription: (desc: string) => ({
     isValid: desc.length <= 500,
@@ -114,11 +114,7 @@ describe('SharedDeckPage', () => {
   });
 
   const renderSharedDeckPage = () => {
-    return render(
-      <BrowserRouter>
-        <SharedDeckPage />
-      </BrowserRouter>
-    );
+    return renderWithRouter(<SharedDeckPage />);
   };
 
   it('shows loading spinner when isLoading is true', () => {
@@ -187,7 +183,9 @@ describe('SharedDeckPage', () => {
     expect(screen.getByText('Название должно содержать минимум 3 символа')).toBeInTheDocument();
 
     fireEvent.change(nameInput, { target: { value: 'Valid Name' } });
-    expect(screen.queryByText('Название должно содержать минимум 3 символа')).not.toBeInTheDocument();
+    expect(
+      screen.queryByText('Название должно содержать минимум 3 символа')
+    ).not.toBeInTheDocument();
   });
 
   it('validates import description', () => {
@@ -307,7 +305,9 @@ describe('SharedDeckPage', () => {
     renderSharedDeckPage();
 
     expect(screen.getByText('Общий доступ к колоде')).toBeInTheDocument();
-    expect(screen.getByText('Вы просматриваете колоду, которой поделился другой пользователь.')).toBeInTheDocument();
+    expect(
+      screen.getByText('Вы просматриваете колоду, которой поделился другой пользователь.')
+    ).toBeInTheDocument();
   });
 
   it('renders success icon', () => {
@@ -377,10 +377,12 @@ describe('SharedDeckPage', () => {
     fireEvent.change(descInput, { target: { value: 'Valid Description' } });
 
     const counterElement = screen.getByText((content, element) => {
-      return element?.tagName.toLowerCase() === 'span' &&
+      return (
+        element?.tagName.toLowerCase() === 'span' &&
         element?.className.includes('sc-dNdcvo') &&
         content.includes('17') &&
-        content.includes('200');
+        content.includes('200')
+      );
     });
     expect(counterElement).toBeInTheDocument();
   });
@@ -394,10 +396,12 @@ describe('SharedDeckPage', () => {
     fireEvent.change(descInput, { target: { value: '' } });
 
     const counterElement = screen.getByText((content, element) => {
-      return element?.tagName.toLowerCase() === 'span' &&
+      return (
+        element?.tagName.toLowerCase() === 'span' &&
         element?.className.includes('sc-dNdcvo') &&
         content.includes('0') &&
-        content.includes('200');
+        content.includes('200')
+      );
     });
     expect(counterElement).toBeInTheDocument();
   });

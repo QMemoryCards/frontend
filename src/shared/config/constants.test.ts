@@ -1,11 +1,11 @@
-import { describe, it, expect } from 'vitest';
+import { describe, expect, it } from 'vitest';
 import {
   API_BASE_URL,
   APP_NAME,
-  SESSION_TIMEOUT,
-  VALIDATION,
   ROUTES,
+  SESSION_TIMEOUT,
   STORAGE_KEYS,
+  VALIDATION,
 } from './constants';
 
 describe('constants', () => {

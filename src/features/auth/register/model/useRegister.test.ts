@@ -1,6 +1,8 @@
 import { renderHook, waitFor } from '@testing-library/react';
-import { describe, it, expect, vi, beforeEach } from 'vitest';
+import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { useRegister } from './useRegister';
+import * as userApi from '@entities/user';
+import * as sharedApi from '@shared/api';
 
 const mockNavigate = vi.fn();
 
@@ -41,9 +43,6 @@ vi.mock('@shared/lib/validation', () => ({
     error: password.length < 6 ? 'Password too short' : null,
   })),
 }));
-
-import * as userApi from '@entities/user';
-import * as sharedApi from '@shared/api';
 
 describe('useRegister', () => {
   beforeEach(() => {

@@ -1,6 +1,8 @@
-import { renderHook, waitFor, act } from '@testing-library/react';
-import { describe, it, expect, vi, beforeEach } from 'vitest';
-import { useGetUser, useUpdateUser, useChangePassword, useDeleteUser } from './useProfile';
+import { act, renderHook, waitFor } from '@testing-library/react';
+import { beforeEach, describe, expect, it, vi } from 'vitest';
+import { useChangePassword, useDeleteUser, useGetUser, useUpdateUser } from './useProfile';
+import { message as mockMessage } from 'antd';
+import { userApi } from '@entities/user';
 
 vi.mock('antd', () => ({
   message: {
@@ -10,8 +12,6 @@ vi.mock('antd', () => ({
     info: vi.fn(),
   },
 }));
-
-import { message as mockMessage } from 'antd';
 
 vi.mock('@entities/user', () => ({
   userApi: {
@@ -29,8 +29,6 @@ vi.mock('@shared/api', () => ({
     code: error.code || '',
   })),
 }));
-
-import { userApi } from '@entities/user';
 
 describe('useProfile hooks', () => {
   beforeEach(() => {

@@ -1,5 +1,5 @@
-import { describe, it, expect, beforeEach, vi } from 'vitest';
-import { validateCardQuestion, validateCardAnswer } from './card';
+import { beforeEach, describe, expect, it, vi } from 'vitest';
+import { validateCardAnswer, validateCardQuestion } from './card';
 
 vi.mock('@shared/config', () => ({
   VALIDATION: {
