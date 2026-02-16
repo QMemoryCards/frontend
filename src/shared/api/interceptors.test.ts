@@ -1,4 +1,4 @@
-import { describe, it, expect, beforeEach, vi } from 'vitest';
+import { describe, it, expect, beforeEach, vi, afterEach } from 'vitest';
 import {
   getToken,
   setToken,
@@ -6,94 +6,224 @@ import {
   setupRequestInterceptor,
   setupResponseInterceptor,
 } from './interceptors';
-import type { AxiosInstance } from 'axios';
+import type { AxiosInstance, InternalAxiosRequestConfig, AxiosResponse, AxiosError } from 'axios';
 
-describe('interceptors - token management', () => {
+const localStorageMock = (() => {
+  let store: Record<string, string> = {};
+  return {
+    getItem: vi.fn((key: string) => store[key] || null),
+    setItem: vi.fn((key: string, value: string) => { store[key] = value; }),
+    removeItem: vi.fn((key: string) => { delete store[key]; }),
+    clear: vi.fn(() => { store = {}; }),
+  };
+})();
+
+Object.defineProperty(window, 'localStorage', { value: localStorageMock });
+
+const originalLocation = window.location;
+
+describe('interceptors', () => {
   const TOKEN_KEY = 'auth_token';
+  let mockLocation: { href: string };
 
   beforeEach(() => {
-    localStorage.clear();
+    localStorageMock.clear();
+    localStorageMock.getItem.mockClear();
+    localStorageMock.setItem.mockClear();
+    localStorageMock.removeItem.mockClear();
     vi.clearAllMocks();
-  });
 
-  describe('getToken', () => {
-    it('should return null when no token exists', () => {
-      const token = getToken();
-      expect(localStorage.getItem).toHaveBeenCalledWith(TOKEN_KEY);
-    });
+    mockLocation = { href: '' };
 
-    it('should return token when it exists', () => {
-      const mockToken = 'test-token-123';
-      (localStorage.getItem as ReturnType<typeof vi.fn>).mockReturnValue(mockToken);
-
-      const token = getToken();
-      expect(token).toBe(mockToken);
-      expect(localStorage.getItem).toHaveBeenCalledWith(TOKEN_KEY);
+    Object.defineProperty(window, 'location', {
+      value: mockLocation,
+      writable: true,
+      configurable: true,
     });
   });
 
-  describe('setToken', () => {
-    it('should store token in localStorage', () => {
-      const mockToken = 'test-token-456';
-      setToken(mockToken);
-
-      expect(localStorage.setItem).toHaveBeenCalledWith(TOKEN_KEY, mockToken);
-    });
-
-    it('should overwrite existing token', () => {
-      const firstToken = 'first-token';
-      const secondToken = 'second-token';
-
-      setToken(firstToken);
-      setToken(secondToken);
-
-      expect(localStorage.setItem).toHaveBeenCalledTimes(2);
-      expect(localStorage.setItem).toHaveBeenLastCalledWith(TOKEN_KEY, secondToken);
+  afterEach(() => {
+    Object.defineProperty(window, 'location', {
+      value: originalLocation,
+      writable: true,
+      configurable: true,
     });
   });
 
-  describe('removeToken', () => {
-    it('should remove token from localStorage', () => {
-      removeToken();
-      expect(localStorage.removeItem).toHaveBeenCalledWith(TOKEN_KEY);
+  describe('token management', () => {
+    describe('getToken', () => {
+      it('should return null when no token exists', () => {
+        expect(getToken()).toBeNull();
+        expect(localStorageMock.getItem).toHaveBeenCalledWith(TOKEN_KEY);
+      });
+
+      it('should return token when it exists', () => {
+        const token = 'test-token';
+        localStorageMock.setItem(TOKEN_KEY, token);
+        expect(getToken()).toBe(token);
+      });
     });
 
-    it('should remove existing token', () => {
-      setToken('some-token');
-      removeToken();
+    describe('setToken', () => {
+      it('should store token in localStorage', () => {
+        const token = 'new-token';
+        setToken(token);
+        expect(localStorageMock.setItem).toHaveBeenCalledWith(TOKEN_KEY, token);
+      });
+    });
 
-      expect(localStorage.setItem).toHaveBeenCalledWith(TOKEN_KEY, 'some-token');
-      expect(localStorage.removeItem).toHaveBeenCalledWith(TOKEN_KEY);
+    describe('removeToken', () => {
+      it('should remove token from localStorage', () => {
+        removeToken();
+        expect(localStorageMock.removeItem).toHaveBeenCalledWith(TOKEN_KEY);
+      });
     });
   });
 
   describe('setupRequestInterceptor', () => {
-    it('should setup request interceptor', () => {
-      const mockInstance = {
+    let mockInstance: AxiosInstance;
+    let requestInterceptor: {
+      fulfilled: (config: InternalAxiosRequestConfig) => InternalAxiosRequestConfig;
+      rejected: (error: AxiosError) => Promise<never>;
+    };
+
+    beforeEach(() => {
+      mockInstance = {
         interceptors: {
           request: {
-            use: vi.fn(),
+            use: vi.fn((fulfilled, rejected) => {
+              requestInterceptor = { fulfilled, rejected };
+            }),
           },
         },
       } as unknown as AxiosInstance;
 
       setupRequestInterceptor(mockInstance);
-      expect(mockInstance.interceptors.request.use).toHaveBeenCalled();
+    });
+
+    it('should add Authorization header if token exists', () => {
+      const token = 'test-token';
+      localStorageMock.setItem(TOKEN_KEY, token);
+      const config = { headers: {} } as InternalAxiosRequestConfig;
+
+      const result = requestInterceptor.fulfilled(config);
+      expect(result.headers?.Authorization).toBe(`Bearer ${token}`);
+    });
+
+    it('should not add Authorization header if token does not exist', () => {
+      const config = { headers: {} } as InternalAxiosRequestConfig;
+      const result = requestInterceptor.fulfilled(config);
+      expect(result.headers?.Authorization).toBeUndefined();
+    });
+
+    it('should reject error in request interceptor', async () => {
+      const error = new Error('Request error') as AxiosError;
+      await expect(requestInterceptor.rejected(error)).rejects.toThrow('Request error');
     });
   });
 
   describe('setupResponseInterceptor', () => {
-    it('should setup response interceptor', () => {
-      const mockInstance = {
+    let mockInstance: AxiosInstance;
+    let responseInterceptor: {
+      fulfilled: (response: AxiosResponse) => AxiosResponse;
+      rejected: (error: AxiosError) => Promise<never>;
+    };
+
+    beforeEach(() => {
+      mockInstance = {
         interceptors: {
           response: {
-            use: vi.fn(),
+            use: vi.fn((fulfilled, rejected) => {
+              responseInterceptor = { fulfilled, rejected };
+            }),
           },
         },
       } as unknown as AxiosInstance;
 
       setupResponseInterceptor(mockInstance);
-      expect(mockInstance.interceptors.response.use).toHaveBeenCalled();
+    });
+
+    it('should return response on success', () => {
+      const response = { data: {} } as AxiosResponse;
+      const result = responseInterceptor.fulfilled(response);
+      expect(result).toBe(response);
+    });
+
+    describe('401 Unauthorized', () => {
+      it('should remove token and redirect to login for non-auth endpoints', async () => {
+        const error = {
+          response: { status: 401 },
+          config: { url: '/api/decks' },
+        } as AxiosError;
+
+        await expect(responseInterceptor.rejected(error)).rejects.toBe(error);
+        expect(localStorageMock.removeItem).toHaveBeenCalledWith(TOKEN_KEY);
+        expect(mockLocation.href).toBe('/login');
+      });
+
+      it('should NOT remove token or redirect for login endpoint', async () => {
+        const error = {
+          response: { status: 401 },
+          config: { url: '/auth/login' },
+        } as AxiosError;
+
+        await expect(responseInterceptor.rejected(error)).rejects.toBe(error);
+        expect(localStorageMock.removeItem).not.toHaveBeenCalled();
+        expect(mockLocation.href).toBe('');
+      });
+
+      it('should NOT remove token or redirect for register endpoint', async () => {
+        const error = {
+          response: { status: 401 },
+          config: { url: '/auth/register' },
+        } as AxiosError;
+
+        await expect(responseInterceptor.rejected(error)).rejects.toBe(error);
+        expect(localStorageMock.removeItem).not.toHaveBeenCalled();
+        expect(mockLocation.href).toBe('');
+      });
+    });
+
+    describe('403 Forbidden', () => {
+      it('should remove token and redirect to login for non-password-change endpoints', async () => {
+        const error = {
+          response: { status: 403 },
+          config: { url: '/api/decks' },
+        } as AxiosError;
+
+        await expect(responseInterceptor.rejected(error)).rejects.toBe(error);
+        expect(localStorageMock.removeItem).toHaveBeenCalledWith(TOKEN_KEY);
+        expect(mockLocation.href).toBe('/login');
+      });
+
+      it('should NOT remove token or redirect for password change endpoint', async () => {
+        const error = {
+          response: { status: 403 },
+          config: { url: '/users/me/password' },
+        } as AxiosError;
+
+        await expect(responseInterceptor.rejected(error)).rejects.toBe(error);
+        expect(localStorageMock.removeItem).not.toHaveBeenCalled();
+        expect(mockLocation.href).toBe('');
+      });
+    });
+
+    it('should not handle other status codes', async () => {
+      const error = {
+        response: { status: 500 },
+        config: { url: '/api/decks' },
+      } as AxiosError;
+
+      await expect(responseInterceptor.rejected(error)).rejects.toBe(error);
+      expect(localStorageMock.removeItem).not.toHaveBeenCalled();
+      expect(mockLocation.href).toBe('');
+    });
+
+    it('should handle error without response (network error)', async () => {
+      const error = { config: { url: '/api/decks' } } as AxiosError;
+      await expect(responseInterceptor.rejected(error)).rejects.toBe(error);
+      expect(localStorageMock.removeItem).not.toHaveBeenCalled();
+      expect(mockLocation.href).toBe('');
     });
   });
 });
