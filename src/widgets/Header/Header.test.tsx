@@ -1,45 +1,119 @@
-import { render } from '@testing-library/react';
-import { describe, it, expect, vi } from 'vitest';
+import { render, screen, fireEvent } from '@testing-library/react';
+import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { Header } from './Header';
 import { BrowserRouter } from 'react-router-dom';
+
+const mockNavigate = vi.fn();
+const mockUseLocation = vi.fn();
 
 vi.mock('react-router-dom', async () => {
   const actual = await vi.importActual('react-router-dom');
   return {
     ...actual,
-    useNavigate: () => vi.fn(),
-    useLocation: () => ({ pathname: '/' }),
+    useNavigate: () => mockNavigate,
+    useLocation: () => mockUseLocation(),
   };
 });
 
 describe('Header', () => {
-  it('should render Header component', () => {
-    const { container } = render(
-      <BrowserRouter>
-        <Header />
-      </BrowserRouter>
-    );
-    expect(container).toBeTruthy();
+  beforeEach(() => {
+    vi.clearAllMocks();
   });
 
-  it('should render navigation when user is logged in', () => {
-    localStorage.setItem('token', 'test-token');
-    const { container } = render(
+  const renderHeader = (props = {}) => {
+    return render(
       <BrowserRouter>
-        <Header />
+        <Header {...props} />
       </BrowserRouter>
     );
-    expect(container).toBeTruthy();
-    localStorage.removeItem('token');
+  };
+
+  it('renders logo and navigation buttons', () => {
+    mockUseLocation.mockReturnValue({ pathname: '/' });
+    renderHeader();
+
+    expect(screen.getByText('Учебные карточки')).toBeInTheDocument();
+    expect(screen.getByRole('button', { name: 'Колоды' })).toBeInTheDocument();
+    expect(screen.getByRole('button', { name: 'Профиль' })).toBeInTheDocument();
   });
 
-  it('should render without navigation when user is not logged in', () => {
-    localStorage.removeItem('token');
-    const { container } = render(
-      <BrowserRouter>
-        <Header />
-      </BrowserRouter>
-    );
-    expect(container).toBeTruthy();
+  describe('active state for Decks button', () => {
+    it('sets active when pathname is exactly /decks', () => {
+      mockUseLocation.mockReturnValue({ pathname: '/decks' });
+      renderHeader();
+
+      const decksButton = screen.getByRole('button', { name: 'Колоды' });
+      expect(decksButton).toHaveStyle('color: #1890ff');
+      expect(decksButton).toBeInTheDocument();
+    });
+
+    it('sets active when pathname starts with /decks/', () => {
+      mockUseLocation.mockReturnValue({ pathname: '/decks/123' });
+      renderHeader();
+      expect(screen.getByRole('button', { name: 'Колоды' })).toBeInTheDocument();
+    });
+
+    it('does not set active on other paths', () => {
+      mockUseLocation.mockReturnValue({ pathname: '/profile' });
+      renderHeader();
+      expect(screen.getByRole('button', { name: 'Колоды' })).toBeInTheDocument();
+    });
   });
+
+  describe('navigation without onNavigate', () => {
+    it('calls navigate when logo is clicked', () => {
+      mockUseLocation.mockReturnValue({ pathname: '/' });
+      renderHeader();
+
+      fireEvent.click(screen.getByText('Учебные карточки'));
+      expect(mockNavigate).toHaveBeenCalledWith('/decks');
+    });
+
+    it('calls navigate when Decks button is clicked', () => {
+      mockUseLocation.mockReturnValue({ pathname: '/' });
+      renderHeader();
+
+      fireEvent.click(screen.getByRole('button', { name: 'Колоды' }));
+      expect(mockNavigate).toHaveBeenCalledWith('/decks');
+    });
+
+    it('calls navigate when Profile button is clicked', () => {
+      mockUseLocation.mockReturnValue({ pathname: '/' });
+      renderHeader();
+
+      fireEvent.click(screen.getByRole('button', { name: 'Профиль' }));
+      expect(mockNavigate).toHaveBeenCalledWith('/profile');
+    });
+  });
+
+  describe('navigation with onNavigate prop', () => {
+    it('calls onNavigate with path when logo clicked', () => {
+      mockUseLocation.mockReturnValue({ pathname: '/' });
+      const onNavigate = vi.fn();
+      renderHeader({ onNavigate });
+
+      fireEvent.click(screen.getByText('Учебные карточки'));
+      expect(onNavigate).toHaveBeenCalledWith('/decks');
+      expect(mockNavigate).not.toHaveBeenCalled();
+    });
+
+    it('calls onNavigate when Decks button clicked', () => {
+      mockUseLocation.mockReturnValue({ pathname: '/' });
+      const onNavigate = vi.fn();
+      renderHeader({ onNavigate });
+
+      fireEvent.click(screen.getByRole('button', { name: 'Колоды' }));
+      expect(onNavigate).toHaveBeenCalledWith('/decks');
+    });
+
+    it('calls onNavigate when Profile button clicked', () => {
+      mockUseLocation.mockReturnValue({ pathname: '/' });
+      const onNavigate = vi.fn();
+      renderHeader({ onNavigate });
+
+      fireEvent.click(screen.getByRole('button', { name: 'Профиль' }));
+      expect(onNavigate).toHaveBeenCalledWith('/profile');
+    });
+  });
+
 });
