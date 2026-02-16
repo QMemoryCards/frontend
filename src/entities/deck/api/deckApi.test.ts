@@ -128,9 +128,9 @@ describe('deckApi', () => {
       const mockDeck = { id: '1', name: 'Imported Deck' };
       (apiClient.post as ReturnType<typeof vi.fn>).mockResolvedValue({ data: mockDeck });
 
-      const result = await importSharedDeck('token123', { name: 'My Deck' });
+      const result = await importSharedDeck('token123', { newName: 'My Deck' });
 
-      expect(apiClient.post).toHaveBeenCalledWith('share/token123/import', { name: 'My Deck' });
+      expect(apiClient.post).toHaveBeenCalledWith('share/token123/import', { newName: 'My Deck' });
       expect(result).toEqual(mockDeck);
     });
 

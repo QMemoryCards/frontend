@@ -5,11 +5,8 @@ describe('entities/deck/model index', () => {
   it('should have Deck type', () => {
     const deck: types.Deck = {
       id: '1',
-      title: 'Test',
+      name: 'Test',
       description: 'Test',
-      cardCount: 0,
-      createdAt: '',
-      userId: '1',
     };
     expect(deck).toBeDefined();
   });
