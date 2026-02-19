@@ -2,7 +2,7 @@ import React from 'react';
 import { useNavigate } from 'react-router-dom';
 import styled from 'styled-components';
 import { Button } from 'antd';
-import { HomeOutlined, ArrowLeftOutlined } from '@ant-design/icons';
+import { ArrowLeftOutlined, HomeOutlined } from '@ant-design/icons';
 
 const Container = styled.div`
   min-height: 100vh;
@@ -59,18 +59,18 @@ const Illustration = styled.div`
   height: 150px;
   margin: 0 auto 40px;
   position: relative;
-  
+
   &::before {
-    content: "🚧";
+    content: '🚧';
     font-size: 80px;
     position: absolute;
     top: 50%;
     left: 50%;
     transform: translate(-50%, -50%);
   }
-  
+
   &::after {
-    content: "";
+    content: '';
     position: absolute;
     bottom: 0;
     left: 50%;
@@ -135,19 +135,10 @@ export const NotFoundPage: React.FC = () => {
           Проверьте URL или вернитесь на предыдущую страницу.
         </Message>
         <ButtonGroup>
-          <PrimaryButton
-            type="primary"
-            icon={<HomeOutlined />}
-            onClick={handleGoHome}
-            size="large"
-          >
+          <PrimaryButton type="primary" icon={<HomeOutlined />} onClick={handleGoHome} size="large">
             На главную
           </PrimaryButton>
-          <SecondaryButton
-            icon={<ArrowLeftOutlined />}
-            onClick={handleGoBack}
-            size="large"
-          >
+          <SecondaryButton icon={<ArrowLeftOutlined />} onClick={handleGoBack} size="large">
             Назад
           </SecondaryButton>
         </ButtonGroup>

@@ -1,9 +1,9 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { AxiosError } from 'axios';
-import { loginUser } from '@entities/user';
 import type { LoginRequest } from '@entities/user';
-import { setToken, handleApiError } from '@shared/api';
+import { loginUser } from '@entities/user';
+import { handleApiError, setToken } from '@shared/api';
 import { ROUTES } from '@shared/config';
 import { validateLogin, validatePassword } from '@shared/lib/validation';
 

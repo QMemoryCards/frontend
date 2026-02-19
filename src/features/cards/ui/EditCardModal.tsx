@@ -1,9 +1,9 @@
-import React, { useState, useEffect } from 'react';
+import React, { useEffect, useState } from 'react';
 import styled from 'styled-components';
 import { Modal } from 'antd';
 import { Input } from '@shared/ui';
 import type { Card, UpdateCardRequest } from '@entities/card';
-import { validateCardQuestion, validateCardAnswer } from '@shared/lib/validation';
+import { validateCardAnswer, validateCardQuestion } from '@shared/lib/validation';
 import { VALIDATION } from '@shared/config';
 
 interface EditCardModalProps {

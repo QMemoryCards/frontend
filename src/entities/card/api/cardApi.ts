@@ -1,5 +1,5 @@
 import { apiClient } from '@shared/api';
-import type { Card, CreateCardRequest, UpdateCardRequest, GetCardsResponse } from '../model/types';
+import type { Card, CreateCardRequest, GetCardsResponse, UpdateCardRequest } from '../model/types';
 
 export const cardApi = {
   getCards: (deckId: string, page = 0, size = 100) =>

@@ -8,5 +8,5 @@ export type {
   UpdateDeckResponse,
   ShareDeckResponse,
   SharedDeck,
-  ImportSharedDeckRequest
-} from './types'
+  ImportSharedDeckRequest,
+} from './types';

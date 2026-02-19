@@ -185,7 +185,7 @@ export const DeckCard: React.FC<DeckCardProps> = ({ deck, onEdit, onDelete, onSt
     if (!dateString) return 'Никогда';
     const date = new Date(dateString);
     const now = new Date();
-    
+
     const startOfToday = new Date(now.getFullYear(), now.getMonth(), now.getDate());
     const startOfStudyDay = new Date(date.getFullYear(), date.getMonth(), date.getDate());
     const diffTime = startOfToday.getTime() - startOfStudyDay.getTime();

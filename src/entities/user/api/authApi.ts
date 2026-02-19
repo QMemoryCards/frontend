@@ -1,10 +1,5 @@
 import { apiClient } from '@shared/api';
-import type {
-  RegisterResponse,
-  LoginResponse,
-  RegisterRequest,
-  LoginRequest,
-} from '../model/types';
+import type { LoginRequest, LoginResponse, RegisterRequest, RegisterResponse } from '../model/types';
 
 /**
  * Регистрация нового пользователя

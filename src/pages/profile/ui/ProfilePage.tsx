@@ -1,20 +1,19 @@
-import React, { useState, useEffect } from 'react';
+import React, { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import styled from 'styled-components';
 import { App } from 'antd';
 import {
   ArrowLeftOutlined,
+  DeleteOutlined,
   EditOutlined,
   KeyOutlined,
   LogoutOutlined,
-  DeleteOutlined,
 } from '@ant-design/icons';
-import { Input } from '@shared/ui';
-import { useGetUser, useUpdateUser, useChangePassword, useDeleteUser } from '@features/profile';
+import { Input, Spinner } from '@shared/ui';
+import { useChangePassword, useDeleteUser, useGetUser, useUpdateUser } from '@features/profile';
 import { logoutUser } from '@entities/user';
 import { validateEmail, validateLogin, validatePassword } from '@shared/lib/validation';
 import { VALIDATION } from '@shared/config';
-import { Spinner } from '@shared/ui';
 import { Header as AppHeader } from '@widgets/Header';
 
 const Container = styled.div`

@@ -79,4 +79,3 @@ export interface ImportSharedDeckRequest {
   newName?: string;
   newDescription?: string;
 }
-

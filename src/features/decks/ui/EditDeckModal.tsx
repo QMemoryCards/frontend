@@ -1,8 +1,8 @@
-import React, { useState, useEffect } from 'react';
+import React, { useEffect, useState } from 'react';
 import { Modal } from 'antd';
 import { Input } from '@shared/ui';
-import { validateDeckName, validateDeckDescription } from '@shared/lib/validation';
-import type { UpdateDeckRequest, DeckDetails } from '@entities/deck';
+import { validateDeckDescription, validateDeckName } from '@shared/lib/validation';
+import type { DeckDetails, UpdateDeckRequest } from '@entities/deck';
 import styled from 'styled-components';
 
 interface EditDeckModalProps {

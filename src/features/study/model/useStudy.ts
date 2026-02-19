@@ -1,8 +1,8 @@
 import { useState } from 'react';
 import { message } from 'antd';
 import { AxiosError } from 'axios';
-import { studyApi } from '@entities/study';
 import type { CardForStudy, StudyAnswerRequest } from '@entities/study';
+import { studyApi } from '@entities/study';
 import { handleApiError } from '@shared/api';
 
 export const useStudy = (deckId: string) => {

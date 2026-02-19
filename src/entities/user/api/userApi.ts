@@ -1,5 +1,5 @@
 import { apiClient } from '@shared/api';
-import type { User, UpdateUserRequest, ChangePasswordRequest } from '../model/types';
+import type { ChangePasswordRequest, UpdateUserRequest, User } from '../model/types';
 
 export const userApi = {
   getMe: () => apiClient.get<User>('/users/me'),
