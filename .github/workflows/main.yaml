@@ -8,9 +8,25 @@ on:
   push:
     branches:
       - main
+      - develop
+      - feature/**
+    paths:
+      - 'src/**'
+      - 'package.json'
+      - 'package-lock.json'
+      - 'vitest.config.ts'
+      - '.github/workflows/main.yaml'
   pull_request:
     branches:
       - main
+    paths:
+      - 'src/**'
+      - 'package.json'
+      - 'package-lock.json'
+      - 'vitest.config.ts'
+      - '.github/workflows/main.yaml'
+  schedule:
+    - cron: '0 3 * * *'
 
 env:
   REGISTRY: ghcr.io
@@ -21,6 +37,24 @@ env:
   IMAGE_TAG: latest
 
 jobs:
+  integration-tests:
+    name: Frontend Integration Tests
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: npm
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Run integration tests
+        run: npm run test:integration
+
   build-and-publish:
     if: github.event_name == 'push' && github.ref == 'refs/heads/main'
     name: Build and Publish Docker Image

@@ -45,3 +45,17 @@ npm run build
 # Lint и форматирование
 npm run lint
 npm run format
+
+## Интеграционное тестирование в CI
+
+Для интеграционных тестов фронтенда настроен GitHub Actions workflow:
+- Файл: `.github/workflows/main.yaml`
+- Job: `Frontend Integration Tests`
+- Команда запуска: `npm run test:integration`
+
+Триггеры запуска интеграционных тестов:
+- `push` (изменения в `src/**`, `package.json`, `package-lock.json`, `vitest.config.ts`, `.github/workflows/main.yaml`)
+- `pull_request` в `main` с теми же путями
+- `schedule` (ежедневно по cron: `0 3 * * *`)
+
+В тестах используются mock-сервисы через MSW, что изолирует проверки от внешнего окружения и ускоряет прогон.
