@@ -12,6 +12,7 @@
     "format:check": "prettier --check \"src/**/*.{ts,tsx,css}\"",
     "type-check": "tsc --noEmit",
     "test": "vitest",
+    "test:integration": "vitest run src/test/integration-tests",
     "test:ui": "vitest --ui",
     "test:coverage": "vitest run --coverage"
   },
