@@ -115,7 +115,7 @@ describe('Удаление колоды с подтверждением', () => 
     const frenchCard =
       frenchTitle.closest('div[class*="Card"]') || frenchTitle.parentElement?.parentElement;
     expect(frenchCard).toBeDefined();
-    const deleteButton = within(frenchCard!).getByRole('button', { name: /удалить/i });
+    const deleteButton = within(frenchCard as HTMLElement).getByRole('button', { name: /удалить/i });
 
     // --- Шаг 1: Нажать "Удалить", затем "Отмена" ---
     await user.click(deleteButton);
