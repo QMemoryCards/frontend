@@ -9,7 +9,13 @@ describe('Регистрация нового пользователя', () => {
     const user = userEvent.setup();
 
     render(
-      <MemoryRouter initialEntries={['/register']}>
+      <MemoryRouter
+        initialEntries={['/register']}
+        future={{
+          v7_startTransition: true,
+          v7_relativeSplatPath: true,
+        }}
+      >
         <Routes>
           <Route path="/register" element={<RegisterPage />} />
           <Route path="/login" element={<LoginPage />} />
