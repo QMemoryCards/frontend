@@ -57,8 +57,8 @@ describe('IT-F-02.1 Добавление и удаление карточек в
       http.delete(
         `${API_BASE}/decks/${deckId}/cards/:cardId`,
         ({ params }: { params: Record<string, string> }) => {
-        cards = cards.filter(card => card.id !== params.cardId);
-        return new HttpResponse(null, { status: 204 });
+          cards = cards.filter(card => card.id !== params.cardId);
+          return new HttpResponse(null, { status: 204 });
         }
       ),
       http.put(`${API_BASE}/decks/${deckId}`, async ({ request }: { request: Request }) => {
@@ -80,7 +80,13 @@ describe('IT-F-02.1 Добавление и удаление карточек в
 
     render(
       <AntdApp>
-        <MemoryRouter initialEntries={[`/decks/${deckId}/edit`]}>
+        <MemoryRouter
+          initialEntries={[`/decks/${deckId}/edit`]}
+          future={{
+            v7_startTransition: true,
+            v7_relativeSplatPath: true,
+          }}
+        >
           <Routes>
             <Route path="/decks/:id/edit" element={<DeckEditPage />} />
           </Routes>

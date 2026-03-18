@@ -1,4 +1,4 @@
-import { describe, it, expect, beforeEach, afterEach } from 'vitest';
+import { afterEach, beforeEach, describe, expect, it } from 'vitest';
 import { render, screen, waitFor, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { MemoryRouter, Route, Routes } from 'react-router-dom';
@@ -11,8 +11,14 @@ const API_BASE = 'http://localhost:8080/api/v1';
 
 describe('Удаление колоды с подтверждением', () => {
   const mockDecks = [
-    { id: '1', name: 'Французский', description: 'Базовые слова', cardsCount: 10, learnedPercent: 0 },
-    { id: '2', name: 'Немецкий', description: 'Путешествия', cardsCount: 5, learnedPercent: 0 }
+    {
+      id: '1',
+      name: 'Французский',
+      description: 'Базовые слова',
+      cardsCount: 10,
+      learnedPercent: 0,
+    },
+    { id: '2', name: 'Немецкий', description: 'Путешествия', cardsCount: 5, learnedPercent: 0 },
   ];
 
   let deleteCalledWithId: string | null = null;
@@ -68,7 +74,13 @@ describe('Удаление колоды с подтверждением', () => 
   afterEach(() => {
     mockDecks.length = 0;
     mockDecks.push(
-      { id: '1', name: 'Французский', description: 'Базовые слова', cardsCount: 10, learnedPercent: 0 },
+      {
+        id: '1',
+        name: 'Французский',
+        description: 'Базовые слова',
+        cardsCount: 10,
+        learnedPercent: 0,
+      },
       { id: '2', name: 'Немецкий', description: 'Путешествия', cardsCount: 5, learnedPercent: 0 }
     );
   });
@@ -77,7 +89,13 @@ describe('Удаление колоды с подтверждением', () => 
     const user = userEvent.setup();
 
     render(
-      <MemoryRouter initialEntries={['/decks']}>
+      <MemoryRouter
+        initialEntries={['/decks']}
+        future={{
+          v7_startTransition: true,
+          v7_relativeSplatPath: true,
+        }}
+      >
         <AntApp>
           <Routes>
             <Route path="/decks" element={<DecksPage />} />
@@ -94,7 +112,8 @@ describe('Удаление колоды с подтверждением', () => 
 
     // Находим карточку колоды "Французский" и кнопку удаления внутри неё
     const frenchTitle = screen.getByText('Французский');
-    const frenchCard = frenchTitle.closest('div[class*="Card"]') || frenchTitle.parentElement?.parentElement;
+    const frenchCard =
+      frenchTitle.closest('div[class*="Card"]') || frenchTitle.parentElement?.parentElement;
     expect(frenchCard).toBeDefined();
     const deleteButton = within(frenchCard!).getByRole('button', { name: /удалить/i });
 

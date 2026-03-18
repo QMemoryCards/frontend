@@ -1,4 +1,4 @@
-import { describe, it, expect, beforeEach } from 'vitest';
+import { beforeEach, describe, expect, it } from 'vitest';
 import { render, screen, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { MemoryRouter, Route, Routes } from 'react-router-dom';
@@ -37,7 +37,8 @@ describe('Смена пароля в профиле', () => {
             { status: 403 }
           );
         }
-        if (body.newPassword === 'Password123') { // без спецсимвола, но с цифрой
+        if (body.newPassword === 'Password123') {
+          // без спецсимвола, но с цифрой
           return HttpResponse.json(
             { code: 'weak_password', message: 'Пароль должен содержать минимум один спецсимвол' },
             { status: 422 }
@@ -75,7 +76,13 @@ describe('Смена пароля в профиле', () => {
     const user = userEvent.setup();
 
     render(
-      <MemoryRouter initialEntries={['/profile']}>
+      <MemoryRouter
+        initialEntries={['/profile']}
+        future={{
+          v7_startTransition: true,
+          v7_relativeSplatPath: true,
+        }}
+      >
         <AntApp>
           <Routes>
             <Route path="/profile" element={<ProfilePage />} />

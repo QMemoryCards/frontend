@@ -38,18 +38,27 @@ describe('IT-F-03.1 Прохождение сессии обучения с по
         ]);
       }),
       http.post(`${API_BASE}/study/${deckId}/answer`, async ({ request }: { request: Request }) => {
-        const body = (await request.json()) as { cardId: string; status: 'remembered' | 'forgotten' };
+        const body = (await request.json()) as {
+          cardId: string;
+          status: 'remembered' | 'forgotten';
+        };
         submittedResults.push(body.status === 'remembered');
-          if (submittedResults.length === 3) {
-            submitStudySessionSpy([...submittedResults]);
-          }
+        if (submittedResults.length === 3) {
+          submitStudySessionSpy([...submittedResults]);
+        }
         return HttpResponse.json({ success: true }, { status: 200 });
       })
     );
 
     render(
       <AntdApp>
-        <MemoryRouter initialEntries={[`/decks/${deckId}/study`]}>
+        <MemoryRouter
+          initialEntries={[`/decks/${deckId}/study`]}
+          future={{
+            v7_startTransition: true,
+            v7_relativeSplatPath: true,
+          }}
+        >
           <Routes>
             <Route path="/decks/:id/study" element={<StudyPage />} />
           </Routes>

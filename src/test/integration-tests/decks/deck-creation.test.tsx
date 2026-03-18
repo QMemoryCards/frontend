@@ -57,7 +57,13 @@ describe('IT-F-01.1 Создание колоды с валидацией и о�
 
     render(
       <AntdApp>
-        <MemoryRouter initialEntries={['/decks']}>
+        <MemoryRouter
+          initialEntries={['/decks']}
+          future={{
+            v7_startTransition: true,
+            v7_relativeSplatPath: true,
+          }}
+        >
           <Routes>
             <Route path="/decks" element={<DecksPage />} />
           </Routes>
@@ -78,7 +84,9 @@ describe('IT-F-01.1 Создание колоды с валидацией и о�
     fireEvent.change(nameInput, { target: { value: 'a'.repeat(91) } });
     fireEvent.blur(nameInput);
 
-    expect(await within(dialog).findByText('Название не должно превышать 90 символов')).toBeInTheDocument();
+    expect(
+      await within(dialog).findByText('Название не должно превышать 90 символов')
+    ).toBeInTheDocument();
     expect(within(dialog).getByRole('button', { name: 'Создать' })).toBeDisabled();
 
     fireEvent.change(nameInput, { target: { value: 'English Vocabulary' } });
