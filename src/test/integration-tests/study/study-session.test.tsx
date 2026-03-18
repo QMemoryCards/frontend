@@ -1,4 +1,4 @@
-import { describe, expect, it } from 'vitest';
+import { describe, expect, it, vi } from 'vitest';
 import { render, screen, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { App as AntdApp } from 'antd';
@@ -15,6 +15,7 @@ describe('IT-F-03.1 Прохождение сессии обучения с по
 
     const deckId = 'deck-1';
     const submittedResults: boolean[] = [];
+    const submitStudySessionSpy = vi.fn();
 
     server.use(
       http.get(`${API_BASE}/decks/${deckId}`, () => {
@@ -39,6 +40,9 @@ describe('IT-F-03.1 Прохождение сессии обучения с по
       http.post(`${API_BASE}/study/${deckId}/answer`, async ({ request }: { request: Request }) => {
         const body = (await request.json()) as { cardId: string; status: 'remembered' | 'forgotten' };
         submittedResults.push(body.status === 'remembered');
+          if (submittedResults.length === 3) {
+            submitStudySessionSpy([...submittedResults]);
+          }
         return HttpResponse.json({ success: true }, { status: 200 });
       })
     );
@@ -84,5 +88,7 @@ describe('IT-F-03.1 Прохождение сессии обучения с по
     await waitFor(() => {
       expect(submittedResults).toEqual([true, false, true]);
     });
+
+    expect(submitStudySessionSpy).toHaveBeenCalledWith([true, false, true]);
   });
 });

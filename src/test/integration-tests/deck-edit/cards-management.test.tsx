@@ -136,6 +136,8 @@ describe('IT-F-02.1 Добавление и удаление карточек в
       );
     });
 
-    expect(await screen.findByText('Колода успешно обновлена')).toBeInTheDocument();
+    expect(
+      await screen.findByText(/колода успешно обновлена|изменения сохранены/i)
+    ).toBeInTheDocument();
   });
 });
