@@ -46,16 +46,23 @@ npm run build
 npm run lint
 npm run format
 
-## Интеграционное тестирование в CI
+## CI/CD
 
-Для интеграционных тестов фронтенда настроен GitHub Actions workflow:
-- Файл: `.github/workflows/main.yaml`
-- Job: `Frontend Integration Tests`
-- Команда запуска: `npm run test:integration`
+Для проверок и публикации фронтенда настроен GitHub Actions workflow:
 
-Триггеры запуска интеграционных тестов:
-- `push` (изменения в `src/**`, `package.json`, `package-lock.json`, `vitest.config.ts`, `.github/workflows/main.yaml`)
-- `pull_request` в `main` с теми же путями
-- `schedule` (ежедневно по cron: `0 3 * * *`)
+- Файл: `.github/workflows/ci.yml`
+- Jobs: `Frontend Quality`, `Docker Image`, `GitHub Release`
+- `Frontend Quality`: `npm ci`, `npm run lint`, `npm run format:check`,
+  `npm run type-check:app`, `npm run test:ci`
+
+Триггеры:
+
+- `push` в `main`;
+- `pull_request` в `main`;
+- теги `v*` — сборка версионного образа и GitHub Release.
+
+На `main` workflow публикует образы
+`ghcr.io/qmemorycards/frontend:sha-<commit>` и `:latest` и запускает
+system-testing через `repository_dispatch`.
 
 В тестах используются mock-сервисы через MSW, что изолирует проверки от внешнего окружения и ускоряет прогон.
