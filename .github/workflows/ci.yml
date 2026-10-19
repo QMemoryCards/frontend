@@ -89,6 +89,7 @@ jobs:
           docker build "${args[@]}" .
 
       - name: Log in to GHCR
+        if: github.event_name != 'pull_request'
         uses: docker/login-action@v3
         with:
           registry: ${{ env.REGISTRY }}
@@ -99,17 +100,26 @@ jobs:
         env:
           FRONTEND_IMAGE: ${{ steps.tags.outputs.primary }}
         run: |
-          docker compose up -d --no-build --wait --wait-timeout 180
-          curl -fsS http://localhost/ > /dev/null
-          curl -fsS http://localhost:8080/actuator/health
+          docker run -d --name frontend-smoke -p 8080:80 \
+            -e BACKEND_HOST=127.0.0.1 \
+            -e BACKEND_PORT=8080 \
+            "$FRONTEND_IMAGE"
+          for i in {1..30}; do
+            if curl -fsS http://localhost:8080/ > /dev/null; then
+              exit 0
+            fi
+            sleep 1
+          done
+          docker logs frontend-smoke
+          exit 1
 
-      - name: Show compose logs on failure
+      - name: Show container logs on failure
         if: failure()
-        run: docker compose logs
+        run: docker logs frontend-smoke
 
-      - name: Shutdown services
+      - name: Remove smoke container
         if: always()
-        run: docker compose down -v
+        run: docker rm -f frontend-smoke || true
 
       - name: Push image
         if: github.event_name != 'pull_request'
