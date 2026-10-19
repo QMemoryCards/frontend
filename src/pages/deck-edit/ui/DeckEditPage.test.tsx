@@ -86,8 +86,8 @@ const mockDeleteCard = vi.fn();
 
 let mockCards: any[] = [];
 let mockCardsLoading = false;
-let mockCreateLoading = false;
-let mockUpdateCardLoading = false;
+const mockCreateLoading = false;
+const mockUpdateCardLoading = false;
 
 vi.mock('@features/cards', () => ({
   useCards: () => ({
@@ -107,14 +107,14 @@ vi.mock('@features/cards', () => ({
   useDeleteCard: () => ({
     deleteCard: mockDeleteCard,
   }),
-  CreateCardModal: ({ isOpen, onClose, onSubmit, isLoading }: any) =>
+  CreateCardModal: ({ isOpen, onClose, onSubmit }: any) =>
     isOpen ? (
       <div data-testid="create-card-modal">
         <button onClick={() => onSubmit({ question: 'Q', answer: 'A' })}>Submit</button>
         <button onClick={onClose}>Close</button>
       </div>
     ) : null,
-  EditCardModal: ({ isOpen, card, onClose, onSubmit, isLoading }: any) =>
+  EditCardModal: ({ isOpen, card, onClose, onSubmit }: any) =>
     isOpen ? (
       <div data-testid="edit-card-modal">
         <button onClick={() => onSubmit(card?.id, { question: 'Updated Q', answer: 'Updated A' })}>

@@ -33,9 +33,7 @@ export const handlers = [
     const page = url.searchParams.get('page') || '0';
     const size = url.searchParams.get('size') || '30';
     return HttpResponse.json({
-      content: [
-        { id: '1', name: 'Мои колоды', description: 'Описание', cardsCount: 5 },
-      ],
+      content: [{ id: '1', name: 'Мои колоды', description: 'Описание', cardsCount: 5 }],
       page: Number(page),
       size: Number(size),
       totalElements: 1,
