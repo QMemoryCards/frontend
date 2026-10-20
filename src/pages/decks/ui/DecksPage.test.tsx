@@ -44,7 +44,7 @@ vi.mock('@features/decks', () => ({
   useDeleteDeck: () => ({
     deleteDeck: mockDeleteDeck,
   }),
-  CreateDeckModal: ({ isOpen, onClose, onSubmit, isLoading }: any) =>
+  CreateDeckModal: ({ isOpen, onClose, onSubmit }: any) =>
     isOpen ? (
       <div data-testid="create-deck-modal">
         <button onClick={() => onSubmit({ name: 'New Deck', description: 'Description' })}>

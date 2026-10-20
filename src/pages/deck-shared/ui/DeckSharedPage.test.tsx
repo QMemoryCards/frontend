@@ -15,9 +15,6 @@ vi.mock('react-router-dom', async () => {
   };
 });
 
-const mockModalOnOk = vi.fn();
-const mockModalOnCancel = vi.fn();
-
 vi.mock('antd', () => ({
   Modal: ({ open, title, onOk, onCancel, children, okButtonProps, confirmLoading }: any) =>
     open ? (

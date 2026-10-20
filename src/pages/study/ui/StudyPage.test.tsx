@@ -42,7 +42,7 @@ const mockSubmitAnswer = vi.fn();
 const mockToggleAnswer = vi.fn();
 
 vi.mock('@features/study', () => ({
-  useStudy: (deckId: string) => ({
+  useStudy: (_deckId: string) => ({
     cards: mockStudyCards,
     loading: mockLoading,
     currentCardIndex: mockCurrentCardIndex,
