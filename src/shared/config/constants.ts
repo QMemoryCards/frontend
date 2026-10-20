@@ -1,4 +1,4 @@
-export const API_BASE_URL = 'http://localhost:8080/api';
+export const API_BASE_URL = '/api';
 export const APP_NAME = 'Flashcards App';
 
 export const SESSION_TIMEOUT = 1800000; // 30 минут в мс

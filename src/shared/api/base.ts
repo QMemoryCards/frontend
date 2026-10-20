@@ -1,7 +1,7 @@
 import axios, { AxiosError, AxiosInstance } from 'axios';
 import { setupRequestInterceptor, setupResponseInterceptor } from './interceptors';
 
-const API_BASE_URL = 'http://localhost:8080/api/v1';
+const API_BASE_URL = '/api/v1';
 
 // Создание экземпляра Axios
 export const apiClient: AxiosInstance = axios.create({

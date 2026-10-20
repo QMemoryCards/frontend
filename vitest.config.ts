@@ -10,6 +10,11 @@ export default defineConfig({
     setupFiles: './src/test/setup.ts',
     testTimeout: 15000,
     hookTimeout: 15000,
+    environmentOptions: {
+      jsdom: {
+        url: 'http://localhost:8080',
+      },
+    },
     coverage: {
       provider: 'v8',
       reporter: ['text', 'json', 'html', 'lcov'],

@@ -11,7 +11,7 @@ import {
 describe('constants', () => {
   describe('API_BASE_URL', () => {
     it('should be a valid URL', () => {
-      expect(API_BASE_URL).toBe('http://localhost:8080/api');
+      expect(API_BASE_URL).toBe('/api');
     });
   });
 
