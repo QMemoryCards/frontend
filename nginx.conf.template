@@ -4,9 +4,9 @@ events {}
 
 http {
 
-    upstream backend_service {
-        server ${BACKEND_HOST}:${BACKEND_PORT};
-    }
+    # Docker DNS. Re-resolve the backend name so a recreated backend
+    # container does not leave nginx pointing at the old IP.
+    resolver 127.0.0.11 valid=10s ipv6=off;
 
     server {
         listen 80;
@@ -21,7 +21,8 @@ http {
 
         # Proxy API requests
         location /api/ {
-            proxy_pass http://backend_service/api/;
+            set $backend http://${BACKEND_HOST}:${BACKEND_PORT};
+            proxy_pass $backend$request_uri;
             proxy_set_header Host $host;
             proxy_set_header X-Real-IP $remote_addr;
             proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
